@@ -432,10 +432,10 @@ export const MapView = ({
       {/* Botón para alternar vista satélite */}
       <button
         onClick={() => setShowSatellite(!showSatellite)}
-        className="absolute bottom-24 right-4 z-[1000] p-3 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow"
+        className="absolute bottom-4 right-4 z-[1000] map-control-btn bg-white dark:bg-gray-800"
         title={showSatellite ? 'Vista de mapa' : 'Vista satélite'}
       >
-        {showSatellite ? '🗺️' : '🛰️'}
+        <span className="text-lg">{showSatellite ? '🗺️' : '🛰️'}</span>
       </button>
 
       {/* Street View integrado - solo visible cuando showStreetView es true */}

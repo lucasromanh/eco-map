@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useTheme } from '../hooks/useTheme';
+import { storageService } from '../services/storageService';
 
 interface HeaderProps {
   onAddReport: () => void;
@@ -11,10 +12,11 @@ interface HeaderProps {
   effectsEnabled?: boolean;
   menuOpen?: boolean;
   setMenuOpen?: (open: boolean) => void;
+  isDark?: boolean;
+  toggleTheme?: () => void;
 }
 
-export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen }: HeaderProps) => {
-  const { isDark, toggleTheme } = useTheme();
+export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme }: HeaderProps) => {
   const [internalMenuOpen, setInternalMenuOpen] = useState(false);
   const isControlled = typeof menuOpen === 'boolean' && typeof setMenuOpen === 'function';
   const actualMenuOpen = isControlled ? menuOpen : internalMenuOpen;
@@ -49,6 +51,33 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
             {actualMenuOpen && (
               <div className="absolute right-0 mt-2 w-72 z-[3000] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden">
                 <div className="py-1">
+                  <button onClick={() => { if (toggleTheme) toggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-yellow-100 dark:hover:bg-yellow-900 text-left">
+                    <span>{isDark ? '🌞' : '🌙'}</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{isDark ? 'Modo claro' : 'Modo oscuro'}</div>
+                      <div className="text-xs text-gray-500">Tema de la aplicación</div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('https://ecomap.saltacoders.com/');
+                        const json = await res.text();
+                        const ok = storageService.importReports(json);
+                        alert(ok ? 'Datos cargados correctamente.' : 'Error al cargar datos.');
+                      } catch {
+                        alert('No se pudo cargar datos desde el servidor.');
+                      }
+                      setActualMenuOpen(false);
+                    }}
+                    className="w-full px-4 py-2 flex items-center gap-3 hover:bg-blue-100 dark:hover:bg-blue-900 text-left"
+                  >
+                    <span>🔄</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">Cargar datos</div>
+                      <div className="text-xs text-gray-500">Importar reportes públicos</div>
+                    </div>
+                  </button>
                   {onToggleWeather && (
                     <button onClick={() => { onToggleWeather(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                       <span>🌦️</span>
@@ -85,13 +114,15 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
                     </div>
                   </button>
 
-                  <button onClick={() => { toggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
-                    <span>{isDark ? '🌞' : '🌙'}</span>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium">{isDark ? 'Modo claro' : 'Modo oscuro'}</div>
-                      <div className="text-xs text-gray-500">Tema de la aplicación</div>
-                    </div>
-                  </button>
+                  {toggleTheme && (
+                    <button onClick={() => { if (toggleTheme) toggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                      <span>{isDark ? '🌞' : '🌙'}</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">{isDark ? 'Modo claro' : 'Modo oscuro'}</div>
+                        <div className="text-xs text-gray-500">Tema de la aplicación</div>
+                      </div>
+                    </button>
+                  )}
 
                   {onShowHelp && (
                     <button onClick={() => { onShowHelp(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">

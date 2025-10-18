@@ -192,11 +192,12 @@ export const AddReportModal = ({
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="input-field"
-                rows={3}
+                className="input-field w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-vertical"
+                rows={4}
                 placeholder="Describe lo que observaste..."
                 required
-                maxLength={500}
+                maxLength={1000}
+                style={{ minHeight: 48, maxHeight: 180 }}
               />
               <p className="text-xs text-gray-500 mt-1">
                 {description.length}/500 caracteres

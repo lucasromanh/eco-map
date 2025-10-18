@@ -1,6 +1,8 @@
 import type { Report } from '../types';
 
 const STORAGE_KEY = 'ecomap_reports';
+const EXPIRATION_MONTHS = 9;
+const MS_PER_MONTH = 30 * 24 * 60 * 60 * 1000;
 
 export const storageService = {
   /**
@@ -10,7 +12,16 @@ export const storageService = {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
       if (!data) return [];
-      return JSON.parse(data);
+      const now = Date.now();
+      // Los reportes se guardan con campo _ts
+      let reports: any[] = JSON.parse(data);
+      // Filtrar reportes expirados
+      reports = reports.filter(r => !r._ts || (now - r._ts) < EXPIRATION_MONTHS * MS_PER_MONTH);
+      // Si hubo expirados, actualizar storage
+      if (reports.length !== JSON.parse(data).length) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
+      }
+      return reports;
     } catch (error) {
       console.error('Error reading reports from storage:', error);
       return [];
@@ -23,11 +34,42 @@ export const storageService = {
   saveReport(report: Report): void {
     try {
       const reports = this.getReports();
-      reports.push(report);
+      // Guardar timestamp de creación
+      reports.push({ ...report, _ts: Date.now() });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(reports));
     } catch (error) {
       console.error('Error saving report:', error);
       throw error;
+    }
+  },
+  /**
+   * Exporta todos los reportes como JSON
+   */
+  exportReports(): string {
+    const reports = this.getReports();
+    return JSON.stringify(reports, null, 2);
+  },
+
+  /**
+   * Importa reportes desde un JSON
+   */
+  importReports(json: string): boolean {
+    try {
+      const imported = JSON.parse(json);
+      if (!Array.isArray(imported)) return false;
+      // Filtrar duplicados por id
+      const current = this.getReports();
+      const ids = new Set(current.map(r => r.id));
+      const merged = [...current];
+      imported.forEach((r: any) => {
+        if (r.id && !ids.has(r.id)) {
+          merged.push({ ...r, _ts: r._ts || Date.now() });
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      return true;
+    } catch {
+      return false;
     }
   },
 

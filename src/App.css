@@ -48,14 +48,23 @@ body.dark {
   animation: pulse 2s infinite;
 }
 
-/* Mejoras para los popups de Leaflet */
-.leaflet-popup-content-wrapper {
-  border-radius: 12px;
-}
 
-.leaflet-popup-content {
-  margin: 0;
-  min-width: 200px;
+/* Botones flotantes compactos para controles de mapa */
+.map-control-btn {
+  min-width: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.map-control-btn:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  transform: scale(1.07);
 }
 
 /* Scrollbar personalizado */

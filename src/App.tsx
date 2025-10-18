@@ -71,9 +71,26 @@ function App() {
     setReports(loadedReports);
   }, []);
 
-  const handleSaveReport = (report: Report) => {
+  const handleSaveReport = async (report: Report) => {
     storageService.saveReport(report);
     setReports([...reports, report]);
+    // Guardar en servidor público
+    let success = false;
+    try {
+      const res = await fetch('https://ecomap.saltacoders.com/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(report),
+      });
+      success = res.ok;
+    } catch {
+      success = false;
+    }
+    setTimeout(() => {
+      alert(
+        `Tu reporte se ha guardado localmente y ${success ? 'también se ha enviado al servidor público.' : 'no se pudo enviar al servidor público.'}\n\nADVERTENCIA: Los reportes enviados a https://ecomap.saltacoders.com/ son públicos y pueden ser vistos por cualquier usuario. No incluyas datos personales sensibles.`
+      );
+    }, 300);
   };
 
   const handleDeleteReport = (id: string) => {
@@ -117,7 +134,7 @@ function App() {
   const isStandalone = isRunningStandalone();
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
+  <div className={`flex flex-col h-screen bg-gray-50 dark:bg-gray-900 ${isDark ? 'dark' : ''}`}> 
       {/* Tutorial */}
       {showTutorial && (
         <Tutorial onComplete={() => setShowTutorial(false)} />
@@ -128,15 +145,17 @@ function App() {
 
       {/* Header */}
       <Header
-        onAddReport={handleAddReport}
-        onToggleList={handleToggleList}
-        onShowHelp={handleShowHelp}
-        onToggleWeather={handleToggleWeather}
-        isWeatherOpen={showWeatherPanel}
-        onToggleEffects={handleToggleEffects}
-        effectsEnabled={effectsEnabled}
-        menuOpen={menuOpen}
-        setMenuOpen={setMenuOpen}
+  onAddReport={handleAddReport}
+  onToggleList={handleToggleList}
+  onShowHelp={handleShowHelp}
+  onToggleWeather={handleToggleWeather}
+  isWeatherOpen={showWeatherPanel}
+  onToggleEffects={handleToggleEffects}
+  effectsEnabled={effectsEnabled}
+  menuOpen={menuOpen}
+  setMenuOpen={setMenuOpen}
+  isDark={isDark}
+  toggleTheme={useTheme().toggleTheme}
       />
 
       {/* Panel clima solo si el menú no está abierto */}
@@ -221,29 +240,24 @@ function App() {
         {/* Botones flotantes */}
         <button
           onClick={() => setShowStreetView(!showStreetView)}
-          className={`absolute bottom-4 left-4 z-[1000] p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 ${
+          className={`absolute bottom-4 left-4 z-[1000] map-control-btn ${
             showStreetView 
               ? 'bg-green-500 text-white' 
               : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
           }`}
           title={showStreetView ? "Ocultar Street View" : "Mostrar Street View"}
         >
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl">📷</span>
-            <span className="hidden sm:inline text-sm font-medium">
-              Street View
-            </span>
-          </div>
+          <span className="text-lg">📷</span>
         </button>
 
         {/* Botón flotante para refrescar ubicación */}
         {location && (
           <button
             onClick={refreshLocation}
-            className="absolute bottom-24 left-4 z-[1000] p-3 bg-white dark:bg-gray-800 rounded-full shadow-lg hover:shadow-xl transition-shadow"
+            className="absolute bottom-4 left-16 z-[1000] map-control-btn bg-white dark:bg-gray-800"
             title="Actualizar ubicación"
           >
-            <svg className="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>

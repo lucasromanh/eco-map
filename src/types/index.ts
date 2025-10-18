@@ -10,6 +10,7 @@ export interface Report {
   imageFile?: File;
   timestamp: number;
   userId?: string;
+  _ts?: number; // timestamp de expiración local
 }
 
 export type ReportCategory = 
