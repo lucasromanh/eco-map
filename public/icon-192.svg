@@ -1,0 +1,18 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fondo verde ecológico -->
+  <rect width="192" height="192" fill="#22c55e" rx="40"/>
+  
+  <!-- Planeta Tierra estilizado -->
+  <circle cx="96" cy="96" r="60" fill="#4ade80"/>
+  <circle cx="96" cy="96" r="55" fill="#22c55e"/>
+  
+  <!-- Continentes simplificados -->
+  <path d="M 70 70 Q 80 65 90 70 T 110 75 Q 115 80 110 90 T 95 100 Q 85 105 75 100 T 65 85 Q 60 75 70 70" fill="#166534"/>
+  <path d="M 100 100 Q 110 95 120 100 T 130 110 Q 125 120 115 120 T 100 115 Q 95 110 100 100" fill="#166534"/>
+  
+  <!-- Marcador de ubicación -->
+  <g transform="translate(96, 60)">
+    <path d="M 0,-15 Q 8,-15 8,-7 Q 8,0 0,8 Q -8,0 -8,-7 Q -8,-15 0,-15" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+    <circle cx="0" cy="-7" r="3" fill="#fff"/>
+  </g>
+</svg>
