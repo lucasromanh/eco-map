@@ -11,6 +11,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { useGeolocation } from './hooks/useGeolocation';
 import { storageService } from './services/storageService';
 import { isRunningStandalone } from './utils/pwa';
+import { userService } from './services/userService';
 import type { Report } from './types';
 import './App.css';
 
@@ -33,6 +34,11 @@ function App() {
   });
   const [menuOpen, setMenuOpen] = useState(false);
   const [showPwaNotice, setShowPwaNotice] = useState(true);
+
+  // Forzar perfil antes de crear reportes
+  const [pendingAddAfterProfile, setPendingAddAfterProfile] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
 
   // Cerrar panel clima automáticamente al abrir el menú
   useEffect(() => {
@@ -82,21 +88,33 @@ function App() {
     setReports(loadedReports);
   }, []);
 
+  // Utilidad: perfil completo
+  const isProfileComplete = () => {
+    const p = userService.getProfile();
+    return !!(p && p.firstName?.trim() && p.lastName?.trim() && p.email?.trim());
+  };
+
   const handleSaveReport = async (report: Report) => {
-    storageService.saveReport(report);
-    setReports([...reports, report]);
-    
     // Detectar si estamos en desarrollo (localhost)
     const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    
-    // Guardar en servidor público solo si NO estamos en desarrollo
+
+    // Asegurar que el reporte queda vinculado al usuario
+    const profile = userService.getProfile();
+    if (!profile) {
+      alert('Error: debes tener un perfil para guardar reportes.');
+      return;
+    }
+    const withUser: Report = { ...report, userId: profile.id };
+    storageService.saveReport(withUser);
+    setReports([...reports, withUser]);
+
     let success = false;
     if (!isDevelopment) {
       try {
         const res = await fetch('https://ecomap.saltacoders.com/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(report),
+          body: JSON.stringify(withUser),
         });
         success = res.ok;
       } catch {
@@ -124,6 +142,13 @@ function App() {
 
   const handleMapClick = (lat: number, lng: number) => {
     setClickedLocation({ lat, lng });
+    // Exigir perfil completo
+    if (!isProfileComplete()) {
+      alert('Debes completar tu perfil antes de crear un reporte.');
+      setShowProfile(true);
+      setPendingAddAfterProfile(true);
+      return;
+    }
     setIsAddModalOpen(true);
   };
 
@@ -136,6 +161,13 @@ function App() {
   const handleAddReport = () => {
     setShowWeatherPanel(false);
     setClickedLocation(null);
+    // Exigir perfil completo
+    if (!isProfileComplete()) {
+      alert('Debes completar tu perfil antes de crear un reporte.');
+      setShowProfile(true);
+      setPendingAddAfterProfile(true);
+      return;
+    }
     setIsAddModalOpen(true);
   };
   const handleToggleList = () => {
@@ -156,8 +188,17 @@ function App() {
   };
 
   const isStandalone = isRunningStandalone();
-  const [showProfile, setShowProfile] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
+  // Reabrir modal de reporte si el usuario completó su perfil
+  useEffect(() => {
+    const onProfileUpdated = () => {
+      if (pendingAddAfterProfile) {
+        setIsAddModalOpen(true);
+        setPendingAddAfterProfile(false);
+      }
+    };
+    window.addEventListener('ecomap_profile_updated', onProfileUpdated as any);
+    return () => window.removeEventListener('ecomap_profile_updated', onProfileUpdated as any);
+  }, [pendingAddAfterProfile]);
 
   useEffect(() => {
     const onOpenProfile = () => setShowProfile(true);
