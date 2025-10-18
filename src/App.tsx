@@ -13,7 +13,7 @@ import type { Report } from './types';
 import './App.css';
 
 function App() {
-  const { isDark } = useTheme();
+  const { isDark, toggleTheme } = useTheme();
   const [reports, setReports] = useState<Report[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isListOpen, setIsListOpen] = useState(false);
@@ -159,7 +159,7 @@ function App() {
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
         isDark={isDark}
-        toggleTheme={useTheme().toggleTheme}
+        toggleTheme={toggleTheme}
       />
 
       {/* Panel clima solo si el menú no está abierto */}

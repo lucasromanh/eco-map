@@ -217,6 +217,7 @@ export const MapView = ({
         <MapClickHandler onMapClick={onMapClick} />
         
         <TileLayer
+          key={isDark ? 'dark' : 'light'}
           url={isDark ? TILE_LAYERS.dark.url : TILE_LAYERS.openStreetMap.url}
           attribution={isDark ? TILE_LAYERS.dark.attribution : TILE_LAYERS.openStreetMap.attribution}
         />
