@@ -172,23 +172,23 @@ function App() {
       <main className="flex-1 relative overflow-hidden">
         {/* Estado de geolocalización */}
         {loading && (
-          <div className="absolute top-16 left-4 z-[900] bg-white/90 dark:bg-gray-800/90 backdrop-blur px-3 py-2 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-2 pointer-events-auto">
-            <span className="text-base">📍</span>
-            <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
+          <div className="absolute top-8 left-2 z-[900] bg-white/90 dark:bg-gray-800/90 backdrop-blur px-2 py-1 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-1 pointer-events-auto min-w-[120px] max-w-[60vw]">
+            <span className="text-sm">📍</span>
+            <p className="text-[10px] text-gray-700 dark:text-gray-300 truncate">
               Obteniendo ubicación...
             </p>
           </div>
         )}
 
         {error && (
-          <div className="absolute top-16 left-4 z-[900] bg-white/95 dark:bg-gray-800/95 backdrop-blur px-3 py-2 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-2 pointer-events-auto">
-            <span className="text-base">ℹ️</span>
-            <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 max-w-[50vw] truncate">
+          <div className="absolute top-8 left-2 z-[900] bg-white/95 dark:bg-gray-800/95 backdrop-blur px-2 py-1 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-1 pointer-events-auto min-w-[120px] max-w-[60vw]">
+            <span className="text-sm">ℹ️</span>
+            <p className="text-[10px] text-gray-700 dark:text-gray-300 truncate max-w-[40vw]">
               {error}
             </p>
             <button
               onClick={refreshLocation}
-              className="text-[11px] md:text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-full font-medium transition-colors"
+              className="text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-1 py-0.5 rounded-full font-medium transition-colors"
               title="Reintentar ubicación"
             >
               Reintentar
@@ -197,7 +197,7 @@ function App() {
               onClick={() => {
                 // Forzar mostrar datos ambientales de la ubicación por defecto
               }}
-              className="text-[11px] md:text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-full font-medium transition-colors"
+              className="text-[10px] bg-gray-600 hover:bg-gray-700 text-white px-1 py-0.5 rounded-full font-medium transition-colors"
               title="Usar datos aquí"
             >
               Ver datos

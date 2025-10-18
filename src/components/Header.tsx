@@ -58,26 +58,6 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
                       <div className="text-xs text-gray-500">Tema de la aplicación</div>
                     </div>
                   </button>
-                  <button
-                    onClick={async () => {
-                      try {
-                        const res = await fetch('https://ecomap.saltacoders.com/');
-                        const json = await res.text();
-                        const ok = storageService.importReports(json);
-                        alert(ok ? 'Datos cargados correctamente.' : 'Error al cargar datos.');
-                      } catch {
-                        alert('No se pudo cargar datos desde el servidor.');
-                      }
-                      setActualMenuOpen(false);
-                    }}
-                    className="w-full px-4 py-2 flex items-center gap-3 hover:bg-blue-100 dark:hover:bg-blue-900 text-left"
-                  >
-                    <span>🔄</span>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium">Cargar datos</div>
-                      <div className="text-xs text-gray-500">Importar reportes públicos</div>
-                    </div>
-                  </button>
                   {onToggleWeather && (
                     <button onClick={() => { onToggleWeather(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                       <span>🌦️</span>

@@ -444,16 +444,15 @@ export const MapView = ({
           <iframe
             src={
               userLocation
-                ? `https://www.mapillary.com/embed?map_style=Mapillary%20light&image_key=&x=${userLocation.longitude}&y=${userLocation.latitude}&z=17&style=photo`
-                : `https://www.mapillary.com/embed?map_style=Mapillary%20light&image_key=&x=-58.3816&y=-34.6037&z=17&style=photo`
+                ? `https://www.google.com/maps?q=&layer=c&cbll=${userLocation.latitude},${userLocation.longitude}&cbp=12,0,0,0,0&z=17&output=svembed`
+                : `https://www.google.com/maps?q=&layer=c&cbll=-24.7859,-65.4117&cbp=12,0,0,0,0&z=17&output=svembed`
             }
             className="w-full h-full border-0"
             allowFullScreen
-            allow="geolocation"
-            title="Mapillary Street View"
+            title="Google Street View"
           />
           <div className="absolute top-2 left-2 bg-white/90 dark:bg-gray-800/90 px-3 py-1 rounded-lg text-xs font-medium">
-            📷 Street View (Mapillary)
+            📷 Street View (Google)
           </div>
         </div>
       )}
