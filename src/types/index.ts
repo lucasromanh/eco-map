@@ -79,3 +79,23 @@ export interface MapillaryResponse {
     next?: string;
   };
 }
+
+// Usuarios y administración
+export interface UserProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  age?: number;
+  avatarUrl?: string; // base64 o URL
+  createdAt: number;
+  updatedAt: number;
+  status?: 'active' | 'blocked';
+}
+
+export interface AdminAccount {
+  username: string;
+  createdAt: number;
+}

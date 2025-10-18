@@ -120,6 +120,20 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
                       <div className="text-xs text-gray-500">Agregar con foto y ubicación</div>
                     </div>
                   </button>
+                  <button onClick={() => { window.dispatchEvent(new CustomEvent('ecomap_open_profile')); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                    <span>👤</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">Mi perfil</div>
+                      <div className="text-xs text-gray-500">Datos personales y foto</div>
+                    </div>
+                  </button>
+                  <button onClick={() => { window.dispatchEvent(new CustomEvent('ecomap_open_admin')); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                    <span>🛡️</span>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">Administración</div>
+                      <div className="text-xs text-gray-500">Moderación y usuarios</div>
+                    </div>
+                  </button>
 
 
                   {typeof onShowTutorial === 'function' && (

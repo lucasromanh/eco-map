@@ -6,6 +6,8 @@ import { AddReportModal } from './components/AddReportModal';
 import { ReportList } from './components/ReportList';
 import { Tutorial } from './components/Tutorial';
 import { InfoBanner } from './components/InfoBanner';
+import { UserProfile } from './components/UserProfile';
+import { AdminPanel } from './components/AdminPanel';
 import { useGeolocation } from './hooks/useGeolocation';
 import { storageService } from './services/storageService';
 import { isRunningStandalone } from './utils/pwa';
@@ -154,6 +156,19 @@ function App() {
   };
 
   const isStandalone = isRunningStandalone();
+  const [showProfile, setShowProfile] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  useEffect(() => {
+    const onOpenProfile = () => setShowProfile(true);
+    const onOpenAdmin = () => setShowAdmin(true);
+    window.addEventListener('ecomap_open_profile', onOpenProfile as any);
+    window.addEventListener('ecomap_open_admin', onOpenAdmin as any);
+    return () => {
+      window.removeEventListener('ecomap_open_profile', onOpenProfile as any);
+      window.removeEventListener('ecomap_open_admin', onOpenAdmin as any);
+    };
+  }, []);
 
   return (
   <div className={`flex flex-col h-screen bg-gray-50 dark:bg-gray-900 ${isDark ? 'dark' : ''}`}> 
@@ -318,6 +333,14 @@ function App() {
         onSelectReport={handleSelectReport}
         onDeleteReport={handleDeleteReport}
       />
+
+      {/* Perfil y Administración */}
+      {showProfile && (
+        <UserProfile isOpen={showProfile} onClose={() => setShowProfile(false)} />
+      )}
+      {showAdmin && (
+        <AdminPanel isOpen={showAdmin} onClose={() => setShowAdmin(false)} />
+      )}
     </div>
   );
 }
