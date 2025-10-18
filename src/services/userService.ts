@@ -1,9 +1,23 @@
 import type { UserProfile, AdminAccount, Report } from '../types';
 
 const USER_KEY = 'ecomap_user_profile_v1';
+const DEVICE_ID_KEY = 'ecomap_device_id_v1';
 const ADMINS_KEY = 'ecomap_admins_v1';
 
+// Generar un ID único para el dispositivo (se genera una sola vez)
+function getOrCreateDeviceId(): string {
+  let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+  if (!deviceId) {
+    deviceId = `device_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    localStorage.setItem(DEVICE_ID_KEY, deviceId);
+  }
+  return deviceId;
+}
+
 export const userService = {
+  getDeviceId(): string {
+    return getOrCreateDeviceId();
+  },
   getProfile(): UserProfile | null {
     try {
       const raw = localStorage.getItem(USER_KEY);
@@ -11,7 +25,10 @@ export const userService = {
     } catch { return null; }
   },
   saveProfile(profile: UserProfile) {
-    localStorage.setItem(USER_KEY, JSON.stringify(profile));
+    // Asegurar que el perfil tenga el deviceId del dispositivo actual
+    const deviceId = this.getDeviceId();
+    const profileWithDevice = { ...profile, deviceId };
+    localStorage.setItem(USER_KEY, JSON.stringify(profileWithDevice));
   },
   updateProfile(updates: Partial<UserProfile>) {
     const cur = this.getProfile();
@@ -20,6 +37,10 @@ export const userService = {
     this.saveProfile(next);
   },
   clearProfile() { localStorage.removeItem(USER_KEY); },
+  // Verificar si hay un perfil guardado
+  hasProfile(): boolean {
+    return this.getProfile() !== null;
+  },
 };
 
 export const adminService = {

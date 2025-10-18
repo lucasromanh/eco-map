@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { storageService } from '../services/storageService';
+import { userService } from '../services/userService';
 
 interface HeaderProps {
   onAddReport: () => void;
@@ -33,6 +34,22 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
   const setActualMenuOpen = isControlled ? setMenuOpen : setInternalMenuOpen;
   const displayedCount = typeof reportCount === 'number' ? reportCount : storedCount;
 
+    // Estado del perfil del usuario
+    const [userProfile, setUserProfile] = useState(() => userService.getProfile());
+
+    // Actualizar perfil cuando cambia (desde UserProfile modal)
+    useEffect(() => {
+      const handleProfileUpdate = () => {
+        setUserProfile(userService.getProfile());
+      };
+      window.addEventListener('storage', handleProfileUpdate);
+      window.addEventListener('ecomap_profile_updated', handleProfileUpdate);
+      return () => {
+        window.removeEventListener('storage', handleProfileUpdate);
+        window.removeEventListener('ecomap_profile_updated', handleProfileUpdate);
+      };
+    }, []);
+
   // Actualizar contador al abrir el menú y cuando cambia storage (otro tab o acción)
   useEffect(() => {
     if (actualMenuOpen) {
@@ -53,13 +70,34 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
   <header className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 z-[1000] relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          {/* Logo y título */}
-          <div className="flex items-center space-x-3">
-            <div className="text-3xl">🌍</div>
-            <div>
-              <h1 className="text-2xl font-bold text-green-900 dark:text-primary-400">EcoMap</h1>
-              <p className="text-xs text-green-900 dark:text-gray-400">Cuidemos nuestro planeta</p>
-            </div>
+            {/* Logo, título y perfil */}
+            <div className="flex items-center space-x-3">
+              <div className="text-3xl">🌍</div>
+              <div className="flex-1">
+                <h1 className="text-2xl font-bold text-green-900 dark:text-primary-400">EcoMap</h1>
+                <p className="text-xs text-green-900 dark:text-gray-400">Cuidemos nuestro planeta</p>
+              </div>
+              {userProfile && (
+                <div className="flex items-center gap-2 ml-4 pl-4 border-l border-gray-300 dark:border-gray-600">
+                  {userProfile.avatarUrl ? (
+                    <img 
+                      src={userProfile.avatarUrl} 
+                      alt={`${userProfile.firstName} ${userProfile.lastName}`}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-green-600 dark:border-primary-400"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-green-600 dark:bg-primary-400 flex items-center justify-center text-white font-bold text-lg">
+                      {userProfile.firstName.charAt(0)}{userProfile.lastName.charAt(0)}
+                    </div>
+                  )}
+                  <div className="hidden sm:block">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {userProfile.firstName} {userProfile.lastName}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{userProfile.email}</div>
+                  </div>
+                </div>
+              )}
           </div>
 
           {/* Menú de acciones (dropdown único) */}

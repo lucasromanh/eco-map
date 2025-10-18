@@ -83,6 +83,7 @@ export interface MapillaryResponse {
 // Usuarios y administración
 export interface UserProfile {
   id: string;
+  deviceId?: string; // ID único del dispositivo
   firstName: string;
   lastName: string;
   email: string;

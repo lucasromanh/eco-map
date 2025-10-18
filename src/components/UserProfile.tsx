@@ -40,6 +40,8 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
     setSaving(true);
     try {
       userService.saveProfile({ ...profile, updatedAt: Date.now() });
+        // Emitir evento para actualizar el Header
+        window.dispatchEvent(new CustomEvent('ecomap_profile_updated'));
       alert('Perfil guardado');
       onClose();
     } finally { setSaving(false); }
