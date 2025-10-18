@@ -59,7 +59,7 @@ export const getCategoryInfo = (
 
 // Coordenadas por defecto (Salta Capital, Argentina)
 export const DEFAULT_CENTER: [number, number] = [-24.782126, -65.423198];
-export const DEFAULT_ZOOM = 13;
+export const DEFAULT_ZOOM = 17;
 
 // Configuración del mapa
 export const MAP_CONFIG = {
