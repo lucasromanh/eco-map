@@ -76,7 +76,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
             </button>
 
             {actualMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 z-[3000] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden text-white dark:text-gray-200">
+              <div className="absolute right-0 mt-2 w-72 z-[3000] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden text-gray-800 dark:text-gray-200">
                 <div className="py-1">
                   <button onClick={() => { effectiveToggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-yellow-100 dark:hover:bg-yellow-900 text-left">
                     <span>{effectiveIsDark ? '🌞' : '🌙'}</span>
@@ -154,8 +154,8 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
             </button>
             <h2 className="text-lg font-bold mb-2 text-blue-700 dark:text-blue-300">Contacto del desarrollador</h2>
             <div className="mb-2">
-              <div className="font-semibold text-white uppercase tracking-wide">LUCAS ROMAN</div>
-              <div className="text-sm text-gray-300">Software Developer</div>
+              <div className="font-semibold uppercase tracking-wide inline-block bg-gray-900 text-white px-2 py-1 rounded">LUCAS ROMAN</div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">Software Developer</div>
             </div>
             <div className="mb-4">
               <a href="mailto:lucas@saltacoders.com" className="text-blue-600 dark:text-blue-400 underline break-all" target="_blank" rel="noopener noreferrer">

@@ -70,33 +70,25 @@ export const MapView = ({
   const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [environmentalData, setEnvironmentalData] = useState<EnvironmentalData | null>(null);
   const [showSatellite, setShowSatellite] = useState(false);
+  const [preferCenter, setPreferCenter] = useState(false);
 
   // Actualizar centro cuando el usuario se mueve
   useEffect(() => {
     if (userLocation) {
       setCenter([userLocation.latitude, userLocation.longitude]);
-      
-      // Obtener datos ambientales
-      environmentalService
-        .getEnvironmentalData(userLocation.latitude, userLocation.longitude)
-        .then((data) => {
-          setEnvironmentalData(data);
-        })
-        .catch(() => {
-          // Error silencioso
-        });
-    } else {
-      // Si no hay ubicación, mostrar datos del centro por defecto
-      environmentalService
-        .getEnvironmentalData(DEFAULT_CENTER[0], DEFAULT_CENTER[1])
-        .then((data) => {
-          setEnvironmentalData(data);
-        })
-        .catch(() => {
-          // Error silencioso
-        });
     }
   }, [userLocation]);
+
+  // Obtener datos ambientales según preferencia (GPS o centro del mapa)
+  useEffect(() => {
+    const coords: [number, number] = preferCenter
+      ? center
+      : (userLocation ? [userLocation.latitude, userLocation.longitude] : DEFAULT_CENTER);
+    environmentalService
+      .getEnvironmentalData(coords[0], coords[1])
+      .then((data) => setEnvironmentalData(data))
+      .catch(() => {/* silencioso */});
+  }, [preferCenter, center, userLocation]);
 
   // Centrar en reporte seleccionado
   useEffect(() => {
@@ -346,7 +338,7 @@ export const MapView = ({
 
       {/* Panel de información ambiental flotante */}
       {showWeatherPanel && environmentalData && envScore && (
-        <div className="absolute top-4 right-4 z-[1000] bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-xs border-2 border-primary-400 dark:border-primary-600">
+  <div className="absolute top-4 right-4 z-[1000] bg-white/95 dark:bg-gray-800 rounded-xl shadow-2xl max-w-xs border-2 border-primary-400 dark:border-primary-600 backdrop-blur-sm">
           <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-3 rounded-t-xl">
             <h3 className="font-bold text-base flex items-center gap-2">
               <span className="text-xl">🌡️</span>
@@ -363,7 +355,7 @@ export const MapView = ({
           </div>
           <div className="p-4 space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+              <span className="text-gray-700 dark:text-gray-400 flex items-center gap-1">
                 <span className="text-lg">{weatherInfo.emoji}</span> Estado
               </span>
               <span className="font-bold text-sm text-gray-800 dark:text-gray-200">
@@ -371,23 +363,35 @@ export const MapView = ({
               </span>
             </div>
             <div className="flex justify-between items-center text-xs py-1">
-              <label className="text-gray-600 dark:text-gray-400 flex items-center gap-2" title="Efectos visuales del clima sobre el mapa">
+              <label className="text-gray-700 dark:text-gray-400 flex items-center gap-2" title="Efectos visuales del clima sobre el mapa">
                 <input type="checkbox" className="accent-green-600" checked={effectsEnabled} onChange={() => { /* controlado por Header/App */ }} />
                 Efectos visuales (Header)
               </label>
               {forcedEffect && <span className="text-[10px] text-gray-500">forzado: {forcedEffect}</span>}
             </div>
+            <div className="flex justify-between items-center text-xs py-1">
+              <label className="text-gray-700 dark:text-gray-400 flex items-center gap-2" title="Usar el centro del mapa para consultar los datos (útil si el GPS es impreciso)">
+                <input
+                  type="checkbox"
+                  className="accent-green-600"
+                  checked={preferCenter}
+                  onChange={(e) => setPreferCenter(e.target.checked)}
+                />
+                Usar centro del mapa
+              </label>
+              <span className="text-[10px] text-gray-500">{preferCenter ? '📍 Centro' : (userLocation ? '📍 GPS' : '📍 Predeterminado')}</span>
+            </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+              <span className="text-gray-700 dark:text-gray-400 flex items-center gap-1">
                 <span className="text-lg">🌡️</span> Temperatura
               </span>
-              <span className="font-bold text-lg text-primary-600 dark:text-primary-400">
+              <span className="font-bold text-lg text-gray-900 dark:text-primary-400">
                 {environmentalData.temperature?.toFixed(1)}°C
               </span>
             </div>
             {environmentalData.precipitation !== undefined && (
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                <span className="text-gray-700 dark:text-gray-400 flex items-center gap-1">
                   <span className="text-lg">🌧️</span> Precipitación
                 </span>
                 <span className="font-bold text-lg text-sky-600 dark:text-sky-400">
@@ -396,7 +400,7 @@ export const MapView = ({
               </div>
             )}
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+              <span className="text-gray-700 dark:text-gray-400 flex items-center gap-1">
                 <span className="text-lg">💧</span> Humedad
               </span>
               <span className="font-bold text-lg text-blue-600 dark:text-blue-400">
@@ -404,16 +408,16 @@ export const MapView = ({
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+              <span className="text-gray-700 dark:text-gray-400 flex items-center gap-1">
                 <span className="text-lg">💨</span> Viento
               </span>
-              <span className="font-bold text-lg text-gray-700 dark:text-gray-300">
+              <span className="font-bold text-lg text-gray-900 dark:text-gray-300">
                 {environmentalData.windSpeed?.toFixed(1)} km/h
               </span>
             </div>
             {environmentalData.uvIndex !== undefined && (
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                <span className="text-gray-700 dark:text-gray-400 flex items-center gap-1">
                   <span className="text-lg">☀️</span> Índice UV
                 </span>
                 <span className="font-bold text-lg text-orange-600 dark:text-orange-400">
@@ -430,6 +434,9 @@ export const MapView = ({
                   {envScore.label} ({envScore.score}/100)
                 </p>
               </div>
+              <p className="mt-2 text-[10px] text-gray-500 dark:text-gray-400">
+                Fuente: Open‑Meteo. Puede diferir de otras apps por proveedor y hora de medición.
+              </p>
             </div>
           </div>
         </div>

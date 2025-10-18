@@ -38,7 +38,7 @@ export const ReportList = ({
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Reportes
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 {reports.length} {reports.length === 1 ? 'reporte' : 'reportes'}
               </p>
             </div>
@@ -58,10 +58,10 @@ export const ReportList = ({
           {sortedReports.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🌍</div>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-gray-600 dark:text-gray-400">
                 No hay reportes aún
               </p>
-              <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
+              <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
                 ¡Sé el primero en agregar uno!
               </p>
             </div>
@@ -116,7 +116,7 @@ export const ReportList = ({
                         </span>
                       </div>
 
-                      <p className="text-xs text-gray-400 mt-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                         📍 {formatCoordinates(report.latitude, report.longitude)}
                       </p>
                     </div>
