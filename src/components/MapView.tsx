@@ -54,6 +54,7 @@ interface MapViewProps {
   showStreetView?: boolean;
   showWeatherPanel?: boolean;
   effectsEnabled?: boolean;
+  isDark?: boolean;
 }
 
 export const MapView = ({
@@ -64,6 +65,7 @@ export const MapView = ({
   showStreetView = false,
   showWeatherPanel = true,
   effectsEnabled = true,
+  isDark = false,
 }: MapViewProps) => {
   const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [environmentalData, setEnvironmentalData] = useState<EnvironmentalData | null>(null);
@@ -215,8 +217,8 @@ export const MapView = ({
         <MapClickHandler onMapClick={onMapClick} />
         
         <TileLayer
-          url={showSatellite ? TILE_LAYERS.satellite.url : TILE_LAYERS.openStreetMap.url}
-          attribution={showSatellite ? TILE_LAYERS.satellite.attribution : TILE_LAYERS.openStreetMap.attribution}
+          url={isDark ? TILE_LAYERS.dark.url : TILE_LAYERS.openStreetMap.url}
+          attribution={isDark ? TILE_LAYERS.dark.attribution : TILE_LAYERS.openStreetMap.attribution}
         />
 
         {/* Marcador de ubicación del usuario */}

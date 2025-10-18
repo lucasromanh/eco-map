@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { MapView } from './components/MapView';
+import { useTheme } from './hooks/useTheme';
 import { Header } from './components/Header';
 import { AddReportModal } from './components/AddReportModal';
 import { ReportList } from './components/ReportList';
@@ -7,10 +8,12 @@ import { Tutorial } from './components/Tutorial';
 import { InfoBanner } from './components/InfoBanner';
 import { useGeolocation } from './hooks/useGeolocation';
 import { storageService } from './services/storageService';
+import { isRunningStandalone } from './utils/pwa';
 import type { Report } from './types';
 import './App.css';
 
 function App() {
+  const { isDark } = useTheme();
   const [reports, setReports] = useState<Report[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isListOpen, setIsListOpen] = useState(false);
@@ -111,6 +114,8 @@ function App() {
     setShowWeatherPanel((v) => !v);
   };
 
+  const isStandalone = isRunningStandalone();
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
       {/* Tutorial */}
@@ -190,17 +195,28 @@ function App() {
           showStreetView={showStreetView}
           showWeatherPanel={showWeatherPanel}
           effectsEnabled={effectsEnabled}
+          isDark={isDark}
         />
 
         {/* Botón PWA - Instalar aplicación */}
-        <button
-          onClick={handleInstallClick}
-          className="absolute top-4 right-4 z-[1000] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2 font-semibold"
-          title="Instalar EcoMap como aplicación"
-        >
-          <span className="text-xl">📱</span>
-          <span className="hidden sm:inline">Instalar App</span>
-        </button>
+        {!isStandalone && deferredPrompt && (
+          <button
+            onClick={handleInstallClick}
+            className="absolute top-4 right-4 z-[1000] bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2 font-semibold"
+            title="Instalar EcoMap como aplicación"
+          >
+            <span className="text-xl">📱</span>
+            <span className="hidden sm:inline">Instalar App</span>
+          </button>
+        )}
+
+        {/* Mensaje para usuarios con la app instalada */}
+        {isStandalone && (
+          <div className="absolute top-4 right-4 z-[1000] bg-blue-900/90 text-white px-4 py-2 rounded-lg shadow-lg max-w-xs text-sm font-medium">
+            <span className="block mb-1">✔️ Estás usando EcoMap como app instalada.</span>
+            <span>Recomendamos ingresar siempre desde la app instalada, ya que está optimizada para mejor experiencia y uso de recursos.</span>
+          </div>
+        )}
 
         {/* Botones flotantes */}
         <button
