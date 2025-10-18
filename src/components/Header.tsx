@@ -4,9 +4,11 @@ interface HeaderProps {
   onAddReport: () => void;
   onToggleList: () => void;
   onShowHelp?: () => void;
+  onToggleWeather?: () => void;
+  isWeatherOpen?: boolean;
 }
 
-export const Header = ({ onAddReport, onToggleList, onShowHelp }: HeaderProps) => {
+export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather, isWeatherOpen }: HeaderProps) => {
   const { isDark, toggleTheme } = useTheme();
 
   return (
@@ -28,6 +30,18 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp }: HeaderProps) =
 
           {/* Botones de acción */}
           <div className="flex items-center space-x-2">
+            {/* Botón de clima */}
+            {onToggleWeather && (
+              <button
+                onClick={onToggleWeather}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                title={isWeatherOpen ? 'Ocultar clima' : 'Mostrar clima'}
+              >
+                <svg className="w-6 h-6 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 104 4h9a5 5 0 100-10 7 7 0 10-13 6z" />
+                </svg>
+              </button>
+            )}
             {/* Botón de lista de reportes */}
             <button
               onClick={onToggleList}

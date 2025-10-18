@@ -4,6 +4,8 @@ export const InfoBanner = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    const seen = localStorage.getItem('ecomap_info_banner_seen');
+    if (seen === 'true') return;
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 2000);

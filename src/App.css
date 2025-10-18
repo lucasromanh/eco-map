@@ -111,3 +111,25 @@ button, a, input, textarea, select {
   color: #f3f4f6;
 }
 
+/* Efectos visuales de clima */
+.weather-overlay { pointer-events: none; position: absolute; inset: 0; z-index: 600; }
+
+/* Lluvia */
+.rain { background-image: linear-gradient(180deg, rgba(255,255,255,0.0) 0%, rgba(59,130,246,0.4) 100%); mask-image: linear-gradient(#0000, #000, #0000); animation: rain-fall 0.6s linear infinite; opacity: 0.4; }
+@keyframes rain-fall { from { background-position: 0 -100px; } to { background-position: 0 100px; } }
+
+/* Nubes */
+.clouds { background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3), transparent 60%), radial-gradient(circle at 60% 40%, rgba(255,255,255,0.2), transparent 60%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.25), transparent 60%); animation: clouds-move 30s linear infinite; opacity: 0.35; }
+@keyframes clouds-move { from { background-position: 0 0, 0 0, 0 0; } to { background-position: 200px 0, 400px 0, 600px 0; } }
+
+/* Niebla */
+.fog { background: radial-gradient(circle at 50% 50%, rgba(209,213,219,0.25), rgba(209,213,219,0.05)); filter: blur(2px); opacity: 0.5; }
+
+/* Nieve */
+.snow { background-image: radial-gradient(white 1px, transparent 1px), radial-gradient(white 1px, transparent 1px); background-size: 20px 20px, 30px 30px; background-position: 0 0, 10px 10px; animation: snow-fall 3s linear infinite; opacity: 0.6; }
+@keyframes snow-fall { from { background-position: 0 -30px, 10px -30px; } to { background-position: 0 30px, 10px 30px; } }
+
+/* Trueno (flash) */
+.thunder { background: rgba(255,255,255,0.0); animation: thunder-flash 5s infinite; }
+@keyframes thunder-flash { 0%, 92%, 100% { background: rgba(255,255,255,0.0); } 95% { background: rgba(255,255,255,0.1); } 96% { background: rgba(255,255,255,0.0); } 97% { background: rgba(255,255,255,0.08); } }
+

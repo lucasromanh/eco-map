@@ -57,8 +57,8 @@ export const getCategoryInfo = (
   return REPORT_CATEGORIES.find((cat) => cat.id === categoryId);
 };
 
-// Coordenadas por defecto (Buenos Aires, Argentina - puedes cambiarlas)
-export const DEFAULT_CENTER: [number, number] = [-34.6037, -58.3816];
+// Coordenadas por defecto (Salta Capital, Argentina)
+export const DEFAULT_CENTER: [number, number] = [-24.782126, -65.423198];
 export const DEFAULT_ZOOM = 13;
 
 // Configuración del mapa

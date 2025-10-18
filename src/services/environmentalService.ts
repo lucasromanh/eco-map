@@ -4,6 +4,30 @@ import type { EnvironmentalData } from '../types';
 const OPEN_METEO_API = 'https://api.open-meteo.com/v1/forecast';
 
 export const environmentalService = {
+  weatherFromCode(
+    code?: number,
+    cloudCover?: number,
+    precipitation?: number
+  ): { label: string; emoji: string; effect: 'rain' | 'clouds' | 'fog' | 'snow' | 'clear' | 'thunder' } {
+    // Referencia: https://open-meteo.com/en/docs#api_form
+    if (code === undefined || code === null) {
+      // Fallback heurístico si no hay weather_code
+      if ((precipitation || 0) > 0.2) return { label: 'Lluvia', emoji: '🌧️', effect: 'rain' };
+      if ((cloudCover || 0) >= 70) return { label: 'Nublado', emoji: '☁️', effect: 'clouds' };
+      if ((cloudCover || 0) >= 30) return { label: 'Parcialmente nublado', emoji: '⛅', effect: 'clouds' };
+      return { label: 'Despejado', emoji: '☀️', effect: 'clear' };
+    }
+    if ([0].includes(code)) return { label: 'Despejado', emoji: '☀️', effect: 'clear' };
+    if ([1, 2, 3].includes(code)) return { label: 'Parcialmente nublado', emoji: '⛅', effect: 'clouds' };
+    if ([45, 48].includes(code)) return { label: 'Niebla', emoji: '🌫️', effect: 'fog' };
+    if ([51, 53, 55, 56, 57].includes(code)) return { label: 'Llovizna', emoji: '🌦️', effect: 'rain' };
+    if ([61, 63, 65, 66, 67].includes(code)) return { label: 'Lluvia', emoji: '🌧️', effect: 'rain' };
+    if ([71, 73, 75, 77].includes(code)) return { label: 'Nieve', emoji: '❄️', effect: 'snow' };
+    if ([80, 81, 82].includes(code)) return { label: 'Chaparrones', emoji: '🌧️', effect: 'rain' };
+    if ([85, 86].includes(code)) return { label: 'Chaparrones de nieve', emoji: '❄️', effect: 'snow' };
+    if ([95, 96, 99].includes(code)) return { label: 'Tormenta', emoji: '⛈️', effect: 'thunder' };
+    return { label: 'Desconocido', emoji: '❓', effect: 'clear' };
+  },
   /**
    * Obtiene datos ambientales para una ubicación específica
    */
@@ -16,7 +40,7 @@ export const environmentalService = {
         params: {
           latitude,
           longitude,
-          current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,uv_index',
+          current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code,uv_index,cloud_cover',
           timezone: 'auto',
         },
       });
@@ -28,6 +52,8 @@ export const environmentalService = {
         humidity: current.relative_humidity_2m,
         windSpeed: current.wind_speed_10m,
         precipitation: current.precipitation,
+        weatherCode: current.weather_code,
+        cloudCover: current.cloud_cover,
         uvIndex: current.uv_index,
       };
     } catch (error) {
@@ -58,6 +84,9 @@ export const environmentalService = {
     }
     if (data.uvIndex && data.uvIndex > 8) {
       score -= 15;
+    }
+    if (data.precipitation && data.precipitation > 0.2) {
+      score -= 10;
     }
 
     // Determinar etiqueta y color

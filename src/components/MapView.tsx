@@ -52,6 +52,7 @@ interface MapViewProps {
   onMapClick?: (lat: number, lng: number) => void;
   selectedReport?: Report | null;
   showStreetView?: boolean;
+  showWeatherPanel?: boolean;
 }
 
 export const MapView = ({
@@ -60,6 +61,7 @@ export const MapView = ({
   onMapClick,
   selectedReport,
   showStreetView = false,
+  showWeatherPanel = true,
 }: MapViewProps) => {
   const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [environmentalData, setEnvironmentalData] = useState<EnvironmentalData | null>(null);
@@ -142,6 +144,28 @@ export const MapView = ({
     ? environmentalService.calculateEnvironmentalScore(environmentalData)
     : null;
 
+  const weatherInfo = environmentalService.weatherFromCode(
+    environmentalData?.weatherCode,
+    environmentalData?.cloudCover,
+    environmentalData?.precipitation
+  );
+  const weatherOverlayClass = (() => {
+    switch (weatherInfo.effect) {
+      case 'rain':
+        return 'rain';
+      case 'clouds':
+        return 'clouds';
+      case 'fog':
+        return 'fog';
+      case 'snow':
+        return 'snow';
+      case 'thunder':
+        return 'thunder';
+      default:
+        return '';
+    }
+  })();
+
   return (
     <div className="relative w-full h-full">
       <MapContainer
@@ -211,6 +235,19 @@ export const MapView = ({
           </>
         )}
 
+        {/* Marcador fijo Salta Capital como punto de acceso cuando no hay ubicación */}
+        {!userLocation && (
+          <Marker position={DEFAULT_CENTER}>
+            <Popup>
+              <div className="p-2">
+                <h3 className="font-bold text-primary-600">Salta Capital — Punto de acceso</h3>
+                <p className="text-sm text-gray-600">Usa este punto para empezar a explorar y crear reportes.</p>
+                <p className="text-xs text-gray-500 mt-1">📍 {formatCoordinates(DEFAULT_CENTER[0], DEFAULT_CENTER[1])}</p>
+              </div>
+            </Popup>
+          </Marker>
+        )}
+
         {/* Marcadores de reportes */}
         {reports.map((report) => (
           <Marker
@@ -253,8 +290,13 @@ export const MapView = ({
         ))}
       </MapContainer>
 
+      {/* Overlay visual según clima */}
+      {weatherOverlayClass && (
+        <div className={`weather-overlay ${weatherOverlayClass}`}></div>
+      )}
+
       {/* Panel de información ambiental flotante */}
-      {environmentalData && envScore && (
+      {showWeatherPanel && environmentalData && envScore && (
         <div className="absolute top-4 right-4 z-[1000] bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-xs border-2 border-primary-400 dark:border-primary-600">
           <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-3 rounded-t-xl">
             <h3 className="font-bold text-base flex items-center gap-2">
@@ -268,12 +310,30 @@ export const MapView = ({
           <div className="p-4 space-y-3">
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                <span className="text-lg">{weatherInfo.emoji}</span> Estado
+              </span>
+              <span className="font-bold text-sm text-gray-800 dark:text-gray-200">
+                {weatherInfo.label}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                 <span className="text-lg">🌡️</span> Temperatura
               </span>
               <span className="font-bold text-lg text-primary-600 dark:text-primary-400">
                 {environmentalData.temperature?.toFixed(1)}°C
               </span>
             </div>
+            {environmentalData.precipitation !== undefined && (
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                  <span className="text-lg">🌧️</span> Precipitación
+                </span>
+                <span className="font-bold text-lg text-sky-600 dark:text-sky-400">
+                  {environmentalData.precipitation?.toFixed(1)} mm
+                </span>
+              </div>
+            )}
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
                 <span className="text-lg">💧</span> Humedad

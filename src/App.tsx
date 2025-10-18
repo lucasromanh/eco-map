@@ -19,6 +19,7 @@ function App() {
   const [showTutorial, setShowTutorial] = useState(true);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showStreetView, setShowStreetView] = useState(false);
+  const [showWeatherPanel, setShowWeatherPanel] = useState(false);
   
   const { location, error, loading, refreshLocation } = useGeolocation();
 
@@ -93,6 +94,8 @@ function App() {
           localStorage.removeItem('ecomap_tutorial_seen');
           setShowTutorial(true);
         }}
+        onToggleWeather={() => setShowWeatherPanel((v) => !v)}
+        isWeatherOpen={showWeatherPanel}
       />
 
       {/* Main Content */}
@@ -142,6 +145,7 @@ function App() {
           onMapClick={handleMapClick}
           selectedReport={selectedReport}
           showStreetView={showStreetView}
+          showWeatherPanel={showWeatherPanel}
         />
 
         {/* Botón PWA - Instalar aplicación */}

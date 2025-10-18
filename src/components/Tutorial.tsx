@@ -169,7 +169,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
                 </button>
                 <button
                   onClick={handleNext}
-                  className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-lg"
+                  className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
                 >
                   Siguiente →
                 </button>

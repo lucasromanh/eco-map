@@ -37,7 +37,12 @@ export interface EnvironmentalData {
   airQuality?: number;
   precipitation?: number;
   uvIndex?: number;
+  weatherCode?: number; // Open-Meteo weather_code
+  cloudCover?: number; // Open-Meteo cloud_cover (%)
 }
+
+export type WeatherEffect = 'rain' | 'clouds' | 'fog' | 'snow' | 'clear' | 'thunder';
+
 
 // Tipos para capas del mapa
 export interface MapLayer {
