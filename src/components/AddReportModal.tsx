@@ -26,10 +26,16 @@ export const AddReportModal = ({
   const [isLoadingImage, setIsLoadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const location = initialLocation || (userLocation ? {
-    lat: userLocation.latitude,
-    lng: userLocation.longitude,
-  } : null);
+  const [location, setLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(
+    initialLocation
+      ? { lat: initialLocation.lat, lng: initialLocation.lng }
+      : userLocation
+        ? { lat: userLocation.latitude, lng: userLocation.longitude }
+        : null
+  );
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -300,6 +306,30 @@ export const AddReportModal = ({
                 <div className="text-[10px] opacity-90">
                   Permite el acceso a tu ubicación o haz clic en un punto del mapa para seleccionar dónde ocurre el problema.
                 </div>
+                <button
+                  type="button"
+                  className="mt-3 bg-blue-600 hover:bg-blue-700 text-white rounded px-3 py-2 text-sm font-semibold shadow"
+                  onClick={() => {
+                    if (navigator.geolocation) {
+                      navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                          // Actualiza el estado local de ubicación
+                          setLocation({
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                          });
+                        },
+                        () => {
+                          alert('No se pudo obtener la ubicación actual. Verifica los permisos.');
+                        }
+                      );
+                    } else {
+                      alert('La geolocalización no está soportada en este dispositivo.');
+                    }
+                  }}
+                >
+                  Usar mi ubicación actual
+                </button>
               </div>
             )}
 
