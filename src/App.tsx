@@ -181,7 +181,7 @@ function App() {
         )}
 
         {error && (
-          <div className="absolute top-8 left-2 z-[900] bg-white/95 dark:bg-gray-800/95 backdrop-blur px-2 py-1 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-1 pointer-events-auto min-w-[120px] max-w-[60vw]">
+            <div className="absolute top-8 left-1/2 -translate-x-1/2 z-[900] bg-white/95 dark:bg-gray-800/95 backdrop-blur px-2 py-1 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-1 pointer-events-auto min-w-[120px] max-w-[60vw]">
             <span className="text-sm">ℹ️</span>
             <p className="text-[10px] text-gray-700 dark:text-gray-300 truncate max-w-[40vw]">
               {error}
