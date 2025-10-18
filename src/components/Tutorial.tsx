@@ -116,10 +116,10 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
 
           {/* Contenido */}
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+            <h2 className="text-2xl font-bold text-white dark:text-gray-100 mb-3">
               {step.title}
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed">
+            <p className="text-white dark:text-gray-400 text-base leading-relaxed">
               {step.description}
             </p>
           </div>
@@ -143,7 +143,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
             {currentStep > 0 && (
               <button
                 onClick={handlePrevious}
-                className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-white dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
               >
                 ← Anterior
               </button>
@@ -153,7 +153,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
               <>
                 <button
                   onClick={handleSkip}
-                  className="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-white dark:text-gray-400 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 >
                   Saltar
                 </button>

@@ -32,8 +32,8 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
           <div className="flex items-center space-x-3">
             <div className="text-3xl">🌍</div>
             <div>
-              <h1 className="text-2xl font-bold text-primary-600 dark:text-primary-400">EcoMap</h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Cuidemos nuestro planeta</p>
+              <h1 className="text-2xl font-bold text-green-900 dark:text-primary-400">EcoMap</h1>
+              <p className="text-xs text-green-900 dark:text-gray-400">Cuidemos nuestro planeta</p>
             </div>
           </div>
 
@@ -51,7 +51,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
             </button>
 
             {actualMenuOpen && (
-              <div className="absolute right-0 mt-2 w-72 z-[3000] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+              <div className="absolute right-0 mt-2 w-72 z-[3000] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden text-white dark:text-gray-200">
                 <div className="py-1">
                   <button onClick={() => { if (toggleTheme) toggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-yellow-100 dark:hover:bg-yellow-900 text-left">
                     <span>{isDark ? '🌞' : '🌙'}</span>

@@ -23,6 +23,7 @@ export const AddReportModal = ({
   const [category, setCategory] = useState<ReportCategory>('otro');
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const location = initialLocation || (userLocation ? {
@@ -32,8 +33,12 @@ export const AddReportModal = ({
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setIsLoadingImage(false);
+      return;
+    }
 
+    setIsLoadingImage(true);
     try {
       // Comprimir imagen
       const compressed = await compressImage(file);
@@ -44,6 +49,8 @@ export const AddReportModal = ({
     } catch (error) {
       console.error('Error processing image:', error);
       alert('Error al procesar la imagen');
+    } finally {
+      setIsLoadingImage(false);
     }
   };
 
@@ -93,10 +100,12 @@ export const AddReportModal = ({
   };
 
   const triggerFileInput = () => {
+    setIsLoadingImage(true);
     fileInputRef.current?.click();
   };
 
   const takePicture = async () => {
+    setIsLoadingImage(true);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' } 
@@ -128,12 +137,12 @@ export const AddReportModal = ({
         <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6 animate-slide-up">
           {/* Header */}
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl font-bold text-white dark:text-gray-100">
               Nuevo Reporte
             </h2>
             <button
               onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="text-white hover:text-gray-200 dark:hover:text-gray-200"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -144,14 +153,14 @@ export const AddReportModal = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Título */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-white dark:text-gray-300 mb-1">
                 Título *
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="input-field"
+                className="input-field w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-white dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="Ej: Basural en esquina de..."
                 required
                 maxLength={100}
@@ -160,7 +169,7 @@ export const AddReportModal = ({
 
             {/* Categoría */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-white dark:text-gray-300 mb-1">
                 Categoría *
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -169,14 +178,14 @@ export const AddReportModal = ({
                     key={cat.id}
                     type="button"
                     onClick={() => setCategory(cat.id)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`p-2 rounded-lg border-2 transition-all ${
                       category === cat.id
                         ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                         : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'
                     }`}
                   >
-                    <div className="text-2xl mb-1">{cat.icon}</div>
-                    <div className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                    <div className="text-lg mb-0.5">{cat.icon}</div>
+                    <div className="text-[10px] font-medium text-white dark:text-gray-300">
                       {cat.label}
                     </div>
                   </button>
@@ -186,34 +195,43 @@ export const AddReportModal = ({
 
             {/* Descripción */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-white dark:text-gray-300 mb-1">
                 Descripción *
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="input-field w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-vertical"
+                className="input-field w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-white dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-vertical"
                 rows={4}
                 placeholder="Describe lo que observaste..."
                 required
                 maxLength={1000}
                 style={{ minHeight: 48, maxHeight: 180 }}
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-white mt-1">
                 {description.length}/500 caracteres
               </p>
             </div>
 
             {/* Imagen */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-white dark:text-gray-300 mb-1">
                 Imagen (opcional)
               </label>
+              {isLoadingImage && (
+                <div className="mb-2 text-xs text-white bg-blue-500 dark:bg-blue-600 p-2 rounded flex items-center gap-2">
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Cargando imagen, por favor espera...</span>
+                </div>
+              )}
               <div className="flex space-x-2">
                 <button
                   type="button"
                   onClick={triggerFileInput}
-                  className="flex-1 btn-secondary flex items-center justify-center space-x-2"
+                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-white dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -223,7 +241,7 @@ export const AddReportModal = ({
                 <button
                   type="button"
                   onClick={takePicture}
-                  className="flex-1 btn-secondary flex items-center justify-center space-x-2"
+                  className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-white dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -264,7 +282,7 @@ export const AddReportModal = ({
 
             {/* Ubicación */}
             {location && (
-              <div className="text-xs text-gray-500 bg-gray-50 dark:bg-gray-700 p-2 rounded">
+              <div className="text-xs text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">
                 📍 {location.lat.toFixed(5)}°, {location.lng.toFixed(5)}°
               </div>
             )}
@@ -274,14 +292,14 @@ export const AddReportModal = ({
               <button
                 type="button"
                 onClick={handleClose}
-                className="flex-1 btn-secondary"
+                className="flex-1 px-4 py-3 bg-gray-200 dark:bg-gray-700 text-white dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 disabled={isLoading}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="flex-1 btn-primary"
+                className="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading || !location}
               >
                 {isLoading ? 'Guardando...' : 'Guardar'}
