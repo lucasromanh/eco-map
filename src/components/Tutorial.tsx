@@ -70,15 +70,6 @@ const tutorialSteps: TutorialStep[] = [
 
 export const Tutorial = ({ onComplete }: TutorialProps) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const hasSeenTutorial = localStorage.getItem('ecomap_tutorial_seen');
-    if (hasSeenTutorial) {
-      setIsVisible(false);
-      onComplete();
-    }
-  }, [onComplete]);
 
   const handleNext = () => {
     if (currentStep < tutorialSteps.length - 1) {
@@ -100,11 +91,10 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
 
   const handleComplete = () => {
     localStorage.setItem('ecomap_tutorial_seen', 'true');
-    setIsVisible(false);
     onComplete();
   };
 
-  if (!isVisible) return null;
+  // El control de visibilidad lo maneja App.tsx
 
   const step = tutorialSteps[currentStep];
   const progress = ((currentStep + 1) / tutorialSteps.length) * 100;

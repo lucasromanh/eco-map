@@ -145,17 +145,21 @@ function App() {
 
       {/* Header */}
       <Header
-  onAddReport={handleAddReport}
-  onToggleList={handleToggleList}
-  onShowHelp={handleShowHelp}
-  onToggleWeather={handleToggleWeather}
-  isWeatherOpen={showWeatherPanel}
-  onToggleEffects={handleToggleEffects}
-  effectsEnabled={effectsEnabled}
-  menuOpen={menuOpen}
-  setMenuOpen={setMenuOpen}
-  isDark={isDark}
-  toggleTheme={useTheme().toggleTheme}
+        onAddReport={handleAddReport}
+        onToggleList={handleToggleList}
+        onShowHelp={handleShowHelp}
+        onShowTutorial={() => {
+          setMenuOpen(false);
+          setShowTutorial(true);
+        }}
+        onToggleWeather={handleToggleWeather}
+        isWeatherOpen={showWeatherPanel}
+        onToggleEffects={handleToggleEffects}
+        effectsEnabled={effectsEnabled}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
+        isDark={isDark}
+        toggleTheme={useTheme().toggleTheme}
       />
 
       {/* Panel clima solo si el menú no está abierto */}
