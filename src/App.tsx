@@ -30,6 +30,7 @@ function App() {
     } catch { return true; }
   });
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showPwaNotice, setShowPwaNotice] = useState(true);
 
   // Cerrar panel clima automáticamente al abrir el menú
   useEffect(() => {
@@ -40,6 +41,14 @@ function App() {
   }, [effectsEnabled]);
   
   const { location, error, loading, refreshLocation } = useGeolocation();
+
+  // Autocerrar aviso PWA a los 5s cuando estamos en modo standalone
+  useEffect(() => {
+    if (!isRunningStandalone()) return;
+    setShowPwaNotice(true);
+    const t = setTimeout(() => setShowPwaNotice(false), 5000);
+    return () => clearTimeout(t);
+  }, []);
 
   // Detectar evento de instalación PWA
   useEffect(() => {
@@ -133,8 +142,8 @@ function App() {
   };
   const handleShowHelp = () => {
     setShowWeatherPanel(false);
-    localStorage.removeItem('ecomap_tutorial_seen');
-    setShowTutorial(true);
+    // Al presionar Ayuda, priorizamos la tarjeta del desarrollador (no el tutorial)
+    // Si se desea ver el tutorial, hay un botón específico en el menú.
   };
   const handleToggleEffects = () => {
     setShowWeatherPanel(false);
@@ -173,6 +182,7 @@ function App() {
         setMenuOpen={setMenuOpen}
         isDark={isDark}
         toggleTheme={toggleTheme}
+        reportCount={reports.length}
       />
 
       {/* Panel clima solo si el menú no está abierto */}
@@ -247,8 +257,15 @@ function App() {
         )}
 
         {/* Mensaje para usuarios con la app instalada */}
-        {isStandalone && (
-          <div className="absolute top-4 right-4 z-[1000] bg-blue-900/90 text-white px-4 py-2 rounded-lg shadow-lg max-w-xs text-sm font-medium">
+        {isStandalone && showPwaNotice && (
+          <div className="absolute top-4 right-4 z-[1000] bg-blue-900/90 text-white px-4 py-2 rounded-lg shadow-lg max-w-xs text-sm font-medium relative">
+            <button
+              aria-label="Cerrar aviso"
+              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center"
+              onClick={() => setShowPwaNotice(false)}
+            >
+              ✖
+            </button>
             <span className="block mb-1">✔️ Estás usando EcoMap como app instalada.</span>
             <span>Recomendamos ingresar siempre desde la app instalada, ya que está optimizada para mejor experiencia y uso de recursos.</span>
           </div>

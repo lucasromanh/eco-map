@@ -24,7 +24,9 @@ export const AddReportModal = ({
   const [imagePreview, setImagePreview] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  // Inputs separados para galería (sin capture) y cámara (con capture)
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const [location, setLocation] = useState<{
     lat: number;
@@ -105,27 +107,15 @@ export const AddReportModal = ({
     onClose();
   };
 
-  const triggerFileInput = () => {
+  const triggerGalleryInput = () => {
     setIsLoadingImage(true);
-    fileInputRef.current?.click();
+    galleryInputRef.current?.click();
   };
 
-  const takePicture = async () => {
+  const takePicture = () => {
+    // Abrir directamente la cámara usando el input con capture
     setIsLoadingImage(true);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
-      
-      // Aquí podrías implementar un componente de cámara más elaborado
-      // Por simplicidad, usaremos el input de archivo que puede acceder a la cámara
-      triggerFileInput();
-      
-      stream.getTracks().forEach(track => track.stop());
-    } catch (error) {
-      console.error('Error accessing camera:', error);
-      triggerFileInput();
-    }
+    cameraInputRef.current?.click();
   };
 
   if (!isOpen) return null;
@@ -236,7 +226,7 @@ export const AddReportModal = ({
               <div className="flex space-x-2">
                 <button
                   type="button"
-                  onClick={triggerFileInput}
+                  onClick={triggerGalleryInput}
                   className="flex-1 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-white dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center justify-center space-x-2"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -256,8 +246,17 @@ export const AddReportModal = ({
                   <span>Cámara</span>
                 </button>
               </div>
+              {/* Input para galería (sin capture) */}
               <input
-                ref={fileInputRef}
+                ref={galleryInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              {/* Input para cámara (con capture) */}
+              <input
+                ref={cameraInputRef}
                 type="file"
                 accept="image/*"
                 capture="environment"

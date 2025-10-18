@@ -69,6 +69,9 @@ const tutorialSteps: TutorialStep[] = [
 ];
 
 export const Tutorial = ({ onComplete }: TutorialProps) => {
+  useEffect(() => {
+    localStorage.setItem('ecomap_tutorial_seen', 'true');
+  }, []);
   const [currentStep, setCurrentStep] = useState(0);
 
   const handleNext = () => {

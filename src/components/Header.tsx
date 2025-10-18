@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from '../hooks/useTheme';
 import { storageService } from '../services/storageService';
 
@@ -15,14 +15,39 @@ interface HeaderProps {
   setMenuOpen?: (open: boolean) => void;
   isDark?: boolean;
   toggleTheme?: () => void;
+  reportCount?: number;
 }
 
-export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme }: HeaderProps) => {
+export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme, reportCount }: HeaderProps) => {
+  // Usar useTheme para mostrar el estado actual del tema
+  const theme = useTheme();
+  // Fallbacks: si no pasan isDark/toggleTheme por props, usamos el hook
+  const effectiveIsDark = typeof isDark === 'boolean' ? isDark : theme.isDark;
+  const effectiveToggleTheme = typeof toggleTheme === 'function' ? toggleTheme : theme.toggleTheme;
+  // Cantidad de reportes guardados (refrescado al abrir menú y ante cambios en storage)
+  const [storedCount, setStoredCount] = useState<number>(() => storageService.getReports().length);
   const [internalMenuOpen, setInternalMenuOpen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const isControlled = typeof menuOpen === 'boolean' && typeof setMenuOpen === 'function';
   const actualMenuOpen = isControlled ? menuOpen : internalMenuOpen;
   const setActualMenuOpen = isControlled ? setMenuOpen : setInternalMenuOpen;
+  const displayedCount = typeof reportCount === 'number' ? reportCount : storedCount;
+
+  // Actualizar contador al abrir el menú y cuando cambia storage (otro tab o acción)
+  useEffect(() => {
+    if (actualMenuOpen) {
+      try { setStoredCount(storageService.getReports().length); } catch {}
+    }
+  }, [actualMenuOpen]);
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'ecomap_reports') {
+        try { setStoredCount(storageService.getReports().length); } catch {}
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   return (
   <header className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 z-[1000] relative">
@@ -53,10 +78,10 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
             {actualMenuOpen && (
               <div className="absolute right-0 mt-2 w-72 z-[3000] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden text-white dark:text-gray-200">
                 <div className="py-1">
-                  <button onClick={() => { if (toggleTheme) toggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-yellow-100 dark:hover:bg-yellow-900 text-left">
-                    <span>{isDark ? '🌞' : '🌙'}</span>
+                  <button onClick={() => { effectiveToggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-yellow-100 dark:hover:bg-yellow-900 text-left">
+                    <span>{effectiveIsDark ? '🌞' : '🌙'}</span>
                     <div className="flex-1">
-                      <div className="text-sm font-medium">{isDark ? 'Modo claro' : 'Modo oscuro'}</div>
+                      <div className="text-sm font-medium">{effectiveIsDark ? 'Modo claro' : 'Modo oscuro'}</div>
                       <div className="text-xs text-gray-500">Tema de la aplicación</div>
                     </div>
                   </button>
@@ -106,13 +131,14 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
                       </div>
                     </button>
                   )}
-                  <button onClick={() => { setShowHelp(true); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-blue-100 dark:hover:bg-blue-900 text-left">
+                  <button onClick={() => { if (onShowHelp) onShowHelp(); setShowHelp(true); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-blue-100 dark:hover:bg-blue-900 text-left">
                     <span>❓</span>
                     <div className="flex-1">
                       <div className="text-sm font-medium">Ayuda</div>
                       <div className="text-xs text-gray-500">Contacto y soporte</div>
                     </div>
                   </button>
+                  <div className="px-4 py-2 text-xs text-gray-500 dark:text-gray-400">Reportes guardados: {displayedCount}</div>
                 </div>
               </div>
             )}
@@ -128,15 +154,14 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
             </button>
             <h2 className="text-lg font-bold mb-2 text-blue-700 dark:text-blue-300">Contacto del desarrollador</h2>
             <div className="mb-2">
-              <div className="font-semibold">Lucas Roman</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">Software Developer</div>
+              <div className="font-semibold text-white uppercase tracking-wide">LUCAS ROMAN</div>
+              <div className="text-sm text-gray-300">Software Developer</div>
             </div>
             <div className="mb-4">
               <a href="mailto:lucas@saltacoders.com" className="text-blue-600 dark:text-blue-400 underline break-all" target="_blank" rel="noopener noreferrer">
                 lucas@saltacoders.com
               </a>
-            </div>
-            <div className="text-xs text-gray-500">¿Dudas, sugerencias o problemas? ¡Contáctame!</div>
+          </div>
           </div>
         </div>
       )}
