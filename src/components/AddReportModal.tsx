@@ -63,7 +63,7 @@ export const AddReportModal = ({
     }
 
     if (!location) {
-      alert('No se pudo obtener la ubicación. Por favor permite el acceso a la ubicación.');
+      alert('⚠️ UBICACIÓN REQUERIDA\n\nNo se pudo obtener tu ubicación. Para crear un reporte debes:\n\n1. Permitir el acceso a la ubicación en tu navegador\n2. O hacer clic en un punto del mapa para seleccionar la ubicación manualmente\n\nLa ubicación es necesaria para registrar dónde ocurre el problema ambiental.');
       return;
     }
 
@@ -281,9 +281,25 @@ export const AddReportModal = ({
             </div>
 
             {/* Ubicación */}
-            {location && (
-              <div className="text-xs text-white bg-gray-50 dark:bg-gray-700 p-2 rounded">
-                📍 {location.lat.toFixed(5)}°, {location.lng.toFixed(5)}°
+            {location ? (
+              <div className="text-xs text-white bg-green-600 dark:bg-green-700 p-3 rounded-lg">
+                <div className="font-semibold mb-1">✅ Ubicación confirmada</div>
+                <div className="flex items-start gap-2">
+                  <span>📍</span>
+                  <div>
+                    <div>{location.lat.toFixed(5)}°, {location.lng.toFixed(5)}°</div>
+                    <div className="text-[10px] mt-1 opacity-90">
+                      {initialLocation ? 'Punto seleccionado en el mapa' : 'Tu ubicación actual (GPS)'}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-xs text-white bg-orange-600 dark:bg-orange-700 p-3 rounded-lg">
+                <div className="font-semibold mb-1">⚠️ Ubicación requerida</div>
+                <div className="text-[10px] opacity-90">
+                  Permite el acceso a tu ubicación o haz clic en un punto del mapa para seleccionar dónde ocurre el problema.
+                </div>
               </div>
             )}
 

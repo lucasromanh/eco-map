@@ -74,22 +74,35 @@ function App() {
   const handleSaveReport = async (report: Report) => {
     storageService.saveReport(report);
     setReports([...reports, report]);
-    // Guardar en servidor público
+    
+    // Detectar si estamos en desarrollo (localhost)
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    // Guardar en servidor público solo si NO estamos en desarrollo
     let success = false;
-    try {
-      const res = await fetch('https://ecomap.saltacoders.com/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(report),
-      });
-      success = res.ok;
-    } catch {
-      success = false;
+    if (!isDevelopment) {
+      try {
+        const res = await fetch('https://ecomap.saltacoders.com/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(report),
+        });
+        success = res.ok;
+      } catch {
+        success = false;
+      }
     }
+    
     setTimeout(() => {
-      alert(
-        `Tu reporte se ha guardado localmente y ${success ? 'también se ha enviado al servidor público.' : 'no se pudo enviar al servidor público.'}\n\nADVERTENCIA: Los reportes enviados a https://ecomap.saltacoders.com/ son públicos y pueden ser vistos por cualquier usuario. No incluyas datos personales sensibles.`
-      );
+      if (isDevelopment) {
+        alert(
+          `✅ Tu reporte se ha guardado localmente.\n\n⚠️ MODO DESARROLLO: No se envió al servidor público porque estás en localhost.\n\nCuando despliegues la aplicación en producción, los reportes se enviarán automáticamente al servidor.`
+        );
+      } else {
+        alert(
+          `Tu reporte se ha guardado localmente y ${success ? 'también se ha enviado al servidor público.' : 'no se pudo enviar al servidor público.'}\n\nADVERTENCIA: Los reportes enviados a https://ecomap.saltacoders.com/ son públicos y pueden ser vistos por cualquier usuario. No incluyas datos personales sensibles.`
+        );
+      }
     }, 300);
   };
 
