@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Report, ReportCategory, UserLocation } from '../types';
 import { REPORT_CATEGORIES } from '../utils/constants';
 import { generateId, compressImage, fileToBase64 } from '../utils/helpers';
@@ -38,6 +38,13 @@ export const AddReportModal = ({
         ? { lat: userLocation.latitude, lng: userLocation.longitude }
         : null
   );
+
+  // Actualizar la ubicación si el usuario hace click en el mapa mientras el modal está abierto
+  useEffect(() => {
+    if (initialLocation && typeof initialLocation.lat === 'number' && typeof initialLocation.lng === 'number') {
+      setLocation({ lat: initialLocation.lat, lng: initialLocation.lng });
+    }
+  }, [initialLocation?.lat, initialLocation?.lng]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
