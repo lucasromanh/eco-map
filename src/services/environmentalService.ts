@@ -17,8 +17,10 @@ export const environmentalService = {
       if ((cloudCover || 0) >= 30) return { label: 'Parcialmente nublado', emoji: '⛅', effect: 'clouds' };
       return { label: 'Despejado', emoji: '☀️', effect: 'clear' };
     }
-    if ([0].includes(code)) return { label: 'Despejado', emoji: '☀️', effect: 'clear' };
-    if ([1, 2, 3].includes(code)) return { label: 'Parcialmente nublado', emoji: '⛅', effect: 'clouds' };
+  if (code === 0) return { label: 'Despejado', emoji: '☀️', effect: 'clear' };
+  if (code === 1) return { label: 'Mayormente despejado', emoji: '🌤️', effect: 'clouds' };
+  if (code === 2) return { label: 'Parcialmente nublado', emoji: '⛅', effect: 'clouds' };
+  if (code === 3) return { label: 'Nublado', emoji: '☁️', effect: 'clouds' };
     if ([45, 48].includes(code)) return { label: 'Niebla', emoji: '🌫️', effect: 'fog' };
     if ([51, 53, 55, 56, 57].includes(code)) return { label: 'Llovizna', emoji: '🌦️', effect: 'rain' };
     if ([61, 63, 65, 66, 67].includes(code)) return { label: 'Lluvia', emoji: '🌧️', effect: 'rain' };
@@ -41,6 +43,9 @@ export const environmentalService = {
           latitude,
           longitude,
           current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code,uv_index,cloud_cover',
+          temperature_unit: 'celsius',
+          wind_speed_unit: 'kmh',
+          precipitation_unit: 'mm',
           timezone: 'auto',
         },
       });
@@ -55,6 +60,8 @@ export const environmentalService = {
         weatherCode: current.weather_code,
         cloudCover: current.cloud_cover,
         uvIndex: current.uv_index,
+        observedAt: current.time,
+        source: 'Open-Meteo',
       };
     } catch (error) {
       console.error('Error fetching environmental data:', error);

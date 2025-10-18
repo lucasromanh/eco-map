@@ -355,6 +355,11 @@ export const MapView = ({
             <p className="text-xs opacity-90 mt-1">
               {userLocation ? '📍 Tu ubicación actual' : '📍 Centro del mapa'}
             </p>
+            {environmentalData.observedAt && (
+              <p className="text-[10px] opacity-80 mt-0.5">
+                {environmentalData.source || 'Fuente desconocida'} · {new Date(environmentalData.observedAt).toLocaleTimeString()}
+              </p>
+            )}
           </div>
           <div className="p-4 space-y-3">
             <div className="flex justify-between items-center text-sm">

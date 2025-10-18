@@ -40,6 +40,8 @@ export interface EnvironmentalData {
   uvIndex?: number;
   weatherCode?: number; // Open-Meteo weather_code
   cloudCover?: number; // Open-Meteo cloud_cover (%)
+  observedAt?: string; // ISO timestamp de la última medición
+  source?: string; // proveedor de datos (p.ej. Open-Meteo)
 }
 
 export type WeatherEffect = 'rain' | 'clouds' | 'fog' | 'snow' | 'clear' | 'thunder';
