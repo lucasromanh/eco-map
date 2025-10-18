@@ -26,6 +26,12 @@ function App() {
       return saved === null ? true : saved !== 'false';
     } catch { return true; }
   });
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // Cerrar panel clima automáticamente al abrir el menú
+  useEffect(() => {
+    if (menuOpen) setShowWeatherPanel(false);
+  }, [menuOpen]);
   useEffect(() => {
     try { localStorage.setItem('ecomap_show_effects', effectsEnabled ? 'true' : 'false'); } catch {}
   }, [effectsEnabled]);
@@ -82,6 +88,29 @@ function App() {
     setIsListOpen(false);
   };
 
+  // Handlers para cerrar el panel de clima si se selecciona otra opción
+  const handleAddReport = () => {
+    setShowWeatherPanel(false);
+    setClickedLocation(null);
+    setIsAddModalOpen(true);
+  };
+  const handleToggleList = () => {
+    setShowWeatherPanel(false);
+    setIsListOpen(!isListOpen);
+  };
+  const handleShowHelp = () => {
+    setShowWeatherPanel(false);
+    localStorage.removeItem('ecomap_tutorial_seen');
+    setShowTutorial(true);
+  };
+  const handleToggleEffects = () => {
+    setShowWeatherPanel(false);
+    setEffectsEnabled((v) => !v);
+  };
+  const handleToggleWeather = () => {
+    setShowWeatherPanel((v) => !v);
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900">
       {/* Tutorial */}
@@ -94,58 +123,61 @@ function App() {
 
       {/* Header */}
       <Header
-        onAddReport={() => {
-          setClickedLocation(null);
-          setIsAddModalOpen(true);
-        }}
-        onToggleList={() => setIsListOpen(!isListOpen)}
-        onShowHelp={() => {
-          localStorage.removeItem('ecomap_tutorial_seen');
-          setShowTutorial(true);
-        }}
-        onToggleWeather={() => setShowWeatherPanel((v) => !v)}
+        onAddReport={handleAddReport}
+        onToggleList={handleToggleList}
+        onShowHelp={handleShowHelp}
+        onToggleWeather={handleToggleWeather}
         isWeatherOpen={showWeatherPanel}
-        onToggleEffects={() => setEffectsEnabled((v) => !v)}
+        onToggleEffects={handleToggleEffects}
         effectsEnabled={effectsEnabled}
+        menuOpen={menuOpen}
+        setMenuOpen={setMenuOpen}
       />
+
+      {/* Panel clima solo si el menú no está abierto */}
+      {showWeatherPanel && !menuOpen && (
+        <div
+          className="fixed left-2 top-16 z-[2000] w-[320px] max-w-[90vw]"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <InfoBanner />
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 relative overflow-hidden">
         {/* Estado de geolocalización */}
         {loading && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-lg">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              📍 Obteniendo ubicación...
+          <div className="absolute top-16 left-4 z-[900] bg-white/90 dark:bg-gray-800/90 backdrop-blur px-3 py-2 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-2 pointer-events-auto">
+            <span className="text-base">📍</span>
+            <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300">
+              Obteniendo ubicación...
             </p>
           </div>
         )}
 
         {error && (
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-blue-50 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 px-5 py-3 rounded-lg shadow-lg max-w-md">
-            <div className="flex items-start space-x-2">
-              <span className="text-lg">ℹ️</span>
-              <div className="flex-1">
-                <p className="text-sm text-blue-900 dark:text-blue-100 mb-2">
-                  {error}
-                </p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={refreshLocation}
-                    className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded font-medium transition-colors"
-                  >
-                    🔄 Reintentar
-                  </button>
-                  <button
-                    onClick={() => {
-                      // Forzar mostrar datos ambientales de la ubicación por defecto
-                    }}
-                    className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded font-medium transition-colors"
-                  >
-                    📍 Ver datos aquí
-                  </button>
-                </div>
-              </div>
-            </div>
+          <div className="absolute top-16 left-4 z-[900] bg-white/95 dark:bg-gray-800/95 backdrop-blur px-3 py-2 rounded-full shadow-md border border-gray-200 dark:border-gray-700 flex items-center gap-2 pointer-events-auto">
+            <span className="text-base">ℹ️</span>
+            <p className="text-xs md:text-sm text-gray-700 dark:text-gray-300 max-w-[50vw] truncate">
+              {error}
+            </p>
+            <button
+              onClick={refreshLocation}
+              className="text-[11px] md:text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-full font-medium transition-colors"
+              title="Reintentar ubicación"
+            >
+              Reintentar
+            </button>
+            <button
+              onClick={() => {
+                // Forzar mostrar datos ambientales de la ubicación por defecto
+              }}
+              className="text-[11px] md:text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded-full font-medium transition-colors"
+              title="Usar datos aquí"
+            >
+              Ver datos
+            </button>
           </div>
         )}
 

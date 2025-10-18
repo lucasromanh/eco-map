@@ -9,11 +9,16 @@ interface HeaderProps {
   isWeatherOpen?: boolean;
   onToggleEffects?: () => void;
   effectsEnabled?: boolean;
+  menuOpen?: boolean;
+  setMenuOpen?: (open: boolean) => void;
 }
 
-export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled }: HeaderProps) => {
+export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen }: HeaderProps) => {
   const { isDark, toggleTheme } = useTheme();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [internalMenuOpen, setInternalMenuOpen] = useState(false);
+  const isControlled = typeof menuOpen === 'boolean' && typeof setMenuOpen === 'function';
+  const actualMenuOpen = isControlled ? menuOpen : internalMenuOpen;
+  const setActualMenuOpen = isControlled ? setMenuOpen : setInternalMenuOpen;
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 z-[1000] relative">
@@ -31,7 +36,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
           {/* Menú de acciones (dropdown único) */}
           <div className="relative">
             <button
-              onClick={() => setMenuOpen((v) => !v)}
+              onClick={() => setActualMenuOpen(!actualMenuOpen)}
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
               title="Opciones"
             >
@@ -41,11 +46,11 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
               <span className="hidden sm:inline text-sm">Opciones</span>
             </button>
 
-            {menuOpen && (
-              <div className="absolute right-0 mt-2 w-72 z-[1100] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden">
+            {actualMenuOpen && (
+              <div className="absolute right-0 mt-2 w-72 z-[3000] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-2xl overflow-hidden">
                 <div className="py-1">
                   {onToggleWeather && (
-                    <button onClick={() => { onToggleWeather(); setMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                    <button onClick={() => { onToggleWeather(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                       <span>🌦️</span>
                       <div className="flex-1">
                         <div className="text-sm font-medium">{isWeatherOpen ? 'Ocultar clima' : 'Mostrar clima'}</div>
@@ -55,7 +60,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
                   )}
 
                   {onToggleEffects && (
-                    <button onClick={() => { onToggleEffects(); setMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                    <button onClick={() => { onToggleEffects(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                       <span>{effectsEnabled ? '🟢' : '⚪'}</span>
                       <div className="flex-1">
                         <div className="text-sm font-medium">{effectsEnabled ? 'Ocultar efectos' : 'Mostrar efectos'}</div>
@@ -64,7 +69,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
                     </button>
                   )}
 
-                  <button onClick={() => { onToggleList(); setMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                  <button onClick={() => { onToggleList(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                     <span>🗂️</span>
                     <div className="flex-1">
                       <div className="text-sm font-medium">Ver reportes</div>
@@ -72,7 +77,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
                     </div>
                   </button>
 
-                  <button onClick={() => { onAddReport(); setMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                  <button onClick={() => { onAddReport(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                     <span>➕</span>
                     <div className="flex-1">
                       <div className="text-sm font-medium">Crear reporte</div>
@@ -80,7 +85,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
                     </div>
                   </button>
 
-                  <button onClick={() => { toggleTheme(); setMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                  <button onClick={() => { toggleTheme(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                     <span>{isDark ? '🌞' : '🌙'}</span>
                     <div className="flex-1">
                       <div className="text-sm font-medium">{isDark ? 'Modo claro' : 'Modo oscuro'}</div>
@@ -89,7 +94,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onToggleWeather,
                   </button>
 
                   {onShowHelp && (
-                    <button onClick={() => { onShowHelp(); setMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                    <button onClick={() => { onShowHelp(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                       <span>❓</span>
                       <div className="flex-1">
                         <div className="text-sm font-medium">Ayuda y tutorial</div>
