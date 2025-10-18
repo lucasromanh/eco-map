@@ -20,6 +20,15 @@ function App() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showStreetView, setShowStreetView] = useState(false);
   const [showWeatherPanel, setShowWeatherPanel] = useState(false);
+  const [effectsEnabled, setEffectsEnabled] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('ecomap_show_effects');
+      return saved === null ? true : saved !== 'false';
+    } catch { return true; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('ecomap_show_effects', effectsEnabled ? 'true' : 'false'); } catch {}
+  }, [effectsEnabled]);
   
   const { location, error, loading, refreshLocation } = useGeolocation();
 
@@ -96,6 +105,8 @@ function App() {
         }}
         onToggleWeather={() => setShowWeatherPanel((v) => !v)}
         isWeatherOpen={showWeatherPanel}
+        onToggleEffects={() => setEffectsEnabled((v) => !v)}
+        effectsEnabled={effectsEnabled}
       />
 
       {/* Main Content */}
@@ -146,6 +157,7 @@ function App() {
           selectedReport={selectedReport}
           showStreetView={showStreetView}
           showWeatherPanel={showWeatherPanel}
+          effectsEnabled={effectsEnabled}
         />
 
         {/* Botón PWA - Instalar aplicación */}

@@ -112,24 +112,66 @@ button, a, input, textarea, select {
 }
 
 /* Efectos visuales de clima */
-.weather-overlay { pointer-events: none; position: absolute; inset: 0; z-index: 600; }
+.weather-overlay { pointer-events: none; position: absolute; inset: 0; z-index: 900; overflow: hidden; }
+.weather-overlay .wfx-item { position: absolute; display: block; }
+.weather-overlay .wfx-item { left: calc(100% * var(--x)); top: calc(100% * var(--y)); transform: scale(var(--scale, 1)); }
 
 /* Lluvia */
-.rain { background-image: linear-gradient(180deg, rgba(255,255,255,0.0) 0%, rgba(59,130,246,0.4) 100%); mask-image: linear-gradient(#0000, #000, #0000); animation: rain-fall 0.6s linear infinite; opacity: 0.4; }
-@keyframes rain-fall { from { background-position: 0 -100px; } to { background-position: 0 100px; } }
+.rain .wfx-item {
+  width: 2px; height: 18vh; background: rgba(59,130,246,0.35); border-radius: 1px;
+  transform: translate(-20vw, -20vh) rotate(-15deg);
+  animation: raindrop 1.2s linear infinite; animation-delay: calc(-1.2s * var(--x));
+}
+@keyframes raindrop { to { transform: translate(-20vw, 120vh) rotate(-15deg); } }
 
 /* Nubes */
-.clouds { background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.3), transparent 60%), radial-gradient(circle at 60% 40%, rgba(255,255,255,0.2), transparent 60%), radial-gradient(circle at 80% 70%, rgba(255,255,255,0.25), transparent 60%); animation: clouds-move 30s linear infinite; opacity: 0.35; }
-@keyframes clouds-move { from { background-position: 0 0, 0 0, 0 0; } to { background-position: 200px 0, 400px 0, 600px 0; } }
+.clouds .wfx-item {
+  width: calc(120px + 160px * var(--scale)); height: calc(60px + 80px * var(--scale)); background: rgba(107,114,128,0.28); filter: blur(0.6px);
+  border-radius: 90px; left: -240px;
+  box-shadow:
+    30px 10px 0 10px rgba(107,114,128,0.28),
+    80px 15px 0 0 rgba(107,114,128,0.24),
+    120px -10px 0 8px rgba(107,114,128,0.28);
+  animation: cloud-move var(--dur, 50s) linear infinite; animation-delay: calc(-1s * (var(--x) + var(--y)));
+}
+@keyframes cloud-move { to { transform: translateX(140vw); } }
 
 /* Niebla */
-.fog { background: radial-gradient(circle at 50% 50%, rgba(209,213,219,0.25), rgba(209,213,219,0.05)); filter: blur(2px); opacity: 0.5; }
+.fog { background: radial-gradient(circle at 50% 50%, rgba(209,213,219,0.18), rgba(209,213,219,0.08)); filter: blur(2px); opacity: 0.35; }
+.fog .wfx-item { display: none; }
 
 /* Nieve */
-.snow { background-image: radial-gradient(white 1px, transparent 1px), radial-gradient(white 1px, transparent 1px); background-size: 20px 20px, 30px 30px; background-position: 0 0, 10px 10px; animation: snow-fall 3s linear infinite; opacity: 0.6; }
-@keyframes snow-fall { from { background-position: 0 -30px, 10px -30px; } to { background-position: 0 30px, 10px 30px; } }
+.snow .wfx-item {
+  width: 6px; height: 6px; background: white; border-radius: 50%;
+  box-shadow: 0 0 6px rgba(255,255,255,0.7);
+  transform: translate(-10vw, -10vh);
+  animation: snowflake 4s linear infinite; animation-delay: calc(-4s * var(--x));
+}
+@keyframes snowflake { to { transform: translate(-10vw, 110vh); } }
 
 /* Trueno (flash) */
-.thunder { background: rgba(255,255,255,0.0); animation: thunder-flash 5s infinite; }
-@keyframes thunder-flash { 0%, 92%, 100% { background: rgba(255,255,255,0.0); } 95% { background: rgba(255,255,255,0.1); } 96% { background: rgba(255,255,255,0.0); } 97% { background: rgba(255,255,255,0.08); } }
+.thunder { background: rgba(255,255,255,0.0); animation: thunder-flash 6s infinite; }
+@keyframes thunder-flash { 0%, 92%, 100% { background: rgba(255,255,255,0.0); } 95% { background: rgba(255,255,255,0.18); } 96% { background: rgba(255,255,255,0.0); } 97% { background: rgba(255,255,255,0.12); } }
+
+/* Sol para clima despejado */
+.clear .wfx-item { display: none; }
+.clear::after {
+  content: '☀️'; position: absolute; top: 10px; right: 10px; font-size: 28px;
+  filter: drop-shadow(0 0 6px rgba(255,200,0,0.7));
+}
+
+/* Semillas CSS variables para items */
+.weather-overlay .wfx-item { --x: 0.5; --y: 0.5; }
+.weather-overlay .wfx-item:nth-child(1) { --x: 0.05; --y: 0.1; }
+.weather-overlay .wfx-item:nth-child(2) { --x: 0.15; --y: 0.25; }
+.weather-overlay .wfx-item:nth-child(3) { --x: 0.25; --y: 0.4; }
+.weather-overlay .wfx-item:nth-child(4) { --x: 0.35; --y: 0.55; }
+.weather-overlay .wfx-item:nth-child(5) { --x: 0.45; --y: 0.7; }
+.weather-overlay .wfx-item:nth-child(6) { --x: 0.55; --y: 0.2; }
+.weather-overlay .wfx-item:nth-child(7) { --x: 0.65; --y: 0.35; }
+.weather-overlay .wfx-item:nth-child(8) { --x: 0.75; --y: 0.5; }
+.weather-overlay .wfx-item:nth-child(9) { --x: 0.85; --y: 0.65; }
+.weather-overlay .wfx-item:nth-child(10) { --x: 0.95; --y: 0.8; }
+.weather-overlay .wfx-item:nth-child(11) { --x: 0.3; --y: 0.15; }
+.weather-overlay .wfx-item:nth-child(12) { --x: 0.8; --y: 0.25; }
 

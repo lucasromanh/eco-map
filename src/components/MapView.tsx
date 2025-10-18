@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import type { Report, UserLocation, EnvironmentalData } from '../types';
@@ -53,6 +53,7 @@ interface MapViewProps {
   selectedReport?: Report | null;
   showStreetView?: boolean;
   showWeatherPanel?: boolean;
+  effectsEnabled?: boolean;
 }
 
 export const MapView = ({
@@ -62,6 +63,7 @@ export const MapView = ({
   selectedReport,
   showStreetView = false,
   showWeatherPanel = true,
+  effectsEnabled = true,
 }: MapViewProps) => {
   const [center, setCenter] = useState<[number, number]>(DEFAULT_CENTER);
   const [environmentalData, setEnvironmentalData] = useState<EnvironmentalData | null>(null);
@@ -161,10 +163,45 @@ export const MapView = ({
         return 'snow';
       case 'thunder':
         return 'thunder';
+      case 'clear':
+        return 'clear';
       default:
         return '';
     }
   })();
+
+  // Modo depuración: permite forzar un efecto visual
+  const forcedEffect = (typeof window !== 'undefined' && window.localStorage)
+    ? localStorage.getItem('ecomap_force_effect') || ''
+    : '';
+  // Toggle de efectos visuales (persistido)
+  const finalOverlayClass = effectsEnabled ? (forcedEffect || weatherOverlayClass) : '';
+
+  // Generar elementos distribuidos para el overlay
+  const overlayCount = useMemo(() => {
+    switch (finalOverlayClass) {
+      case 'rain': return 50;
+      case 'snow': return 70;
+      case 'clouds': return 14;
+      default: return 0; // fog/thunder/clear no requieren items
+    }
+  }, [finalOverlayClass]);
+
+  const overlayItems = useMemo(() => {
+    return Array.from({ length: overlayCount }).map((_, i) => {
+      const x = (i * 0.123 + 0.37) % 1; // pseudo-aleatorio determinista
+      const y = (i * 0.271 + 0.19) % 1;
+      const scale = finalOverlayClass === 'clouds' ? (0.6 + ((i * 0.199) % 0.9)) : 1;
+      const dur = finalOverlayClass === 'clouds' ? (40 + ((i * 7) % 30)) : undefined;
+      const style: CSSProperties = {
+        ["--x" as any]: String(x),
+        ["--y" as any]: String(y),
+        ["--scale" as any]: String(scale),
+        ["--dur" as any]: dur ? `${dur}s` : undefined,
+      };
+      return <span key={i} className="wfx-item" style={style} />;
+    });
+  }, [overlayCount, finalOverlayClass]);
 
   return (
     <div className="relative w-full h-full">
@@ -291,8 +328,17 @@ export const MapView = ({
       </MapContainer>
 
       {/* Overlay visual según clima */}
-      {weatherOverlayClass && (
-        <div className={`weather-overlay ${weatherOverlayClass}`}></div>
+      {finalOverlayClass && (
+        <>
+          <div className={`weather-overlay ${finalOverlayClass}`}>
+            {overlayItems}
+          </div>
+          {forcedEffect && (
+            <div className="absolute bottom-2 right-2 z-[950] bg-black/60 text-white text-[11px] px-2 py-1 rounded-md">
+              Efecto forzado: {forcedEffect}
+            </div>
+          )}
+        </>
       )}
 
       {/* Panel de información ambiental flotante */}
@@ -315,6 +361,13 @@ export const MapView = ({
               <span className="font-bold text-sm text-gray-800 dark:text-gray-200">
                 {weatherInfo.label}
               </span>
+            </div>
+            <div className="flex justify-between items-center text-xs py-1">
+              <label className="text-gray-600 dark:text-gray-400 flex items-center gap-2" title="Efectos visuales del clima sobre el mapa">
+                <input type="checkbox" className="accent-green-600" checked={effectsEnabled} onChange={() => { /* controlado por Header/App */ }} />
+                Efectos visuales (Header)
+              </label>
+              {forcedEffect && <span className="text-[10px] text-gray-500">forzado: {forcedEffect}</span>}
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-600 dark:text-gray-400 flex items-center gap-1">
