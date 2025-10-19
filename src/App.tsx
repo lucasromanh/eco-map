@@ -44,6 +44,14 @@ function App() {
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(() => authService.getSession());
 
+  // Sincronizar perfil al cargar sesión existente
+  useEffect(() => {
+    if (user) {
+      console.log('🔄 Usuario en sesión, sincronizando perfil:', user);
+      userService.syncFromAuthUser(user);
+    }
+  }, [user]);
+
   // Handler para login exitoso
   const handleLogin = (u: AuthUser) => {
     setUser(u);

@@ -26,12 +26,15 @@ export const AuthModal = ({ isOpen, onClose, onLogin }: Props) => {
     e.preventDefault();
     setLoading(true); setError('');
     const res = await authService.login(form.email, form.password);
+    console.log('🔐 Login response:', res); // Debug
     setLoading(false);
     if (res.ok && res.user) {
+      console.log('✅ Usuario logueado:', res.user); // Debug
       authService.saveSession(res.user);
       onLogin(res.user);
       onClose();
     } else {
+      console.error('❌ Login falló:', res.raw); // Debug
       setError('Email o contraseña incorrectos');
     }
   };

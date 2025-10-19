@@ -45,6 +45,7 @@ export const userService = {
   },
   // Sincronizar perfil desde backend (AuthUser -> UserProfile)
   syncFromAuthUser(authUser: { id: string; nombre: string; apellido: string; email: string; telefono?: string; direccion?: string; edad?: number; foto_perfil?: string }) {
+    console.log('🔄 Sincronizando perfil desde backend:', authUser); // Debug
     const existing = this.getProfile();
     const profile: UserProfile = {
       id: authUser.id,
@@ -59,6 +60,7 @@ export const userService = {
       updatedAt: Date.now(),
       status: 'active',
     };
+    console.log('💾 Guardando perfil local:', profile); // Debug
     this.saveProfile(profile);
   },
 };
