@@ -237,6 +237,15 @@ function App() {
     }
   };
 
+  // Escuchar evento de reportes actualizados (cuando se aprueba desde admin)
+  useEffect(() => {
+    const handleReportsUpdated = () => {
+      handleRefreshReports();
+    };
+    window.addEventListener('ecomap_reports_updated', handleReportsUpdated);
+    return () => window.removeEventListener('ecomap_reports_updated', handleReportsUpdated);
+  }, [handleRefreshReports]);
+
   const base64ToFile = (base64: string, filename: string, contentType = 'image/jpeg'): File | null => {
     try {
       const arr = base64.split(',');
@@ -393,26 +402,25 @@ function App() {
         isDark={isDark}
       />
 
-      {/* Botón flotante de Street View */}
+      {/* Botón flotante de Street View - IZQUIERDA */}
       <button
         onClick={() => setShowStreetView(true)}
-        className="fixed bottom-6 left-6 z-[1000] bg-primary-600 hover:bg-primary-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
+        className="fixed bottom-6 left-6 z-[1000] bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
         title="Ver Street View"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
         </svg>
       </button>
 
-      {/* Botón flotante de Pronóstico */}
+      {/* Botón flotante de Pronóstico - CENTRO */}
       <button
         onClick={() => setShowForecast(true)}
-        className="fixed bottom-6 right-6 z-[1000] bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
+        className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[1000] bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
         title="Pronóstico Extendido"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"/>
         </svg>
       </button>
 

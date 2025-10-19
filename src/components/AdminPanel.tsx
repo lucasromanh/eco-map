@@ -59,7 +59,11 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
     const res = await adminService.approveReport(id);
     if (res.ok) {
       alert('Reporte aprobado');
-      adminService.getPendingReports().then(setPendingReports);
+      // Recargar reportes pendientes
+      const updatedReports = await adminService.getPendingReports();
+      setPendingReports(updatedReports);
+      // Disparar evento para que App.tsx recargue los reportes aprobados
+      window.dispatchEvent(new Event('ecomap_reports_updated'));
     } else {
       alert('Error al aprobar el reporte');
     }
@@ -69,7 +73,9 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
     const res = await adminService.deleteReport(id);
     if (res.ok) {
       alert('Reporte eliminado');
-      adminService.getPendingReports().then(setPendingReports);
+      // Recargar reportes pendientes
+      const updatedReports = await adminService.getPendingReports();
+      setPendingReports(updatedReports);
     } else {
       alert('Error al eliminar el reporte');
     }
