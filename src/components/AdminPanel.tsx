@@ -215,18 +215,39 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                             alt={r.titulo}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              // Intentar con el dominio viejo como fallback
+                              console.log('❌ Error cargando imagen:', target.src);
+                              
+                              // Intentar con el dominio alternativo como fallback
                               if (!target.dataset.fallbackAttempted && r.imagen) {
                                 target.dataset.fallbackAttempted = 'true';
+                                
+                                const newHost = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
                                 const oldHost = 'https://ecomap.saltacoders.com';
-                                if (r.imagen.startsWith('/uploads/')) {
+                                
+                                // Si falló el servidor nuevo, probar con el viejo
+                                if (target.src.includes('srv882-files.hstgr.io')) {
+                                  const path = target.src.replace(newHost, '');
+                                  target.src = `${oldHost}${path}`;
+                                  console.log('🔄 Intentando con servidor viejo:', target.src);
+                                }
+                                // Si falló el servidor viejo, probar con el nuevo
+                                else if (target.src.includes('ecomap.saltacoders.com')) {
+                                  const path = target.src.replace(oldHost, '');
+                                  target.src = `${newHost}${path}`;
+                                  console.log('🔄 Intentando con servidor nuevo:', target.src);
+                                }
+                                // Si es relativa, probar ambos
+                                else if (r.imagen.startsWith('/uploads/')) {
                                   target.src = `${oldHost}${r.imagen}`;
+                                  console.log('🔄 Intentando con ruta relativa:', target.src);
                                 } else if (!r.imagen.startsWith('http')) {
                                   target.src = `${oldHost}/uploads/reportes/${r.imagen}`;
+                                  console.log('🔄 Intentando con nombre de archivo:', target.src);
                                 } else {
                                   target.src = 'https://via.placeholder.com/120x80?text=Sin+foto';
                                 }
                               } else {
+                                console.log('⚠️ Fallback agotado, mostrando placeholder');
                                 target.src = 'https://via.placeholder.com/120x80?text=Sin+foto';
                               }
                             }}

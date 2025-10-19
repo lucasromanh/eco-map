@@ -94,9 +94,12 @@ export const adminService = {
     try {
       const res = await fetch(`${API_URL}?action=get_pending_reports`);
       const data = await res.json();
-      return data.ok && Array.isArray(data.puntos)
-        ? data.puntos
-        : [];
+      console.log('📥 Reportes pendientes recibidos:', data);
+      if (data.ok && Array.isArray(data.puntos)) {
+        console.log('🖼️ URLs de imágenes:', data.puntos.map((p: any) => p.imagen));
+        return data.puntos;
+      }
+      return [];
     } catch (error) {
       console.error('Error al obtener reportes pendientes:', error);
       return [];
