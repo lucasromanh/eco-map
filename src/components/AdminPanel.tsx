@@ -13,16 +13,17 @@ export const adminDemoActions = {
 };
 
 export const AdminPanel = ({ isOpen, onClose }: Props) => {
-  const [logged, setLogged] = useState<string | null>(null);
+  const [logged, setLogged] = useState<any>(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [tab, setTab] = useState<Tab>('reports');
   const [pendingReports, setPendingReports] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   // Eliminados estados y variables locales innecesarios
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !logged) return;
     (async () => {
       const [users, reports] = await Promise.all([
         adminService.getUsers(),
@@ -31,7 +32,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
       setAllUsers(users);
       setPendingReports(reports);
     })();
-  }, [isOpen]);
+  }, [isOpen, logged]);
 
   // Aprobar reporte (debe estar fuera del useEffect)
   const approveReport = async (id: string) => {
@@ -58,9 +59,11 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   // Eliminado efecto de direcciones locales
 
   const onLogin = async () => {
+    setLoading(true);
     const res = await adminService.login(username, password);
+    setLoading(false);
     if (res.ok && res.admin) {
-      setLogged(res.admin.usuario);
+      setLogged(res.admin);
       setUsername('');
       setPassword('');
     } else {
@@ -78,7 +81,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   // Mantener sesión admin si existe
   useEffect(() => {
     const admin = adminService.getCurrentAdmin();
-    if (admin) setLogged(admin.usuario);
+    if (admin) setLogged(admin);
   }, []);
 
   // Eliminada función de reportes locales
@@ -120,13 +123,21 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
               <input className="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Usuario" />
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
               <input type="password" className="w-full mb-4 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" />
-              <button onClick={onLogin} className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">Ingresar</button>
+              <button
+                onClick={onLogin}
+                disabled={loading}
+                className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Verificando...' : 'Ingresar'}
+              </button>
               <div className="mt-3 text-xs text-center text-gray-500 dark:text-gray-400">Demo: lucasromanh / catalinaromanteamo</div>
             </div>
           ) : (
             <div>
               <div className="mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
-                <div className="text-xs text-gray-500 dark:text-gray-400">Sesión: <span className="font-semibold text-gray-700 dark:text-gray-200">{logged}</span></div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  Sesión: <span className="font-semibold text-gray-700 dark:text-gray-200">{logged?.nombre || logged?.usuario}</span> ({logged?.rol})
+                </div>
               </div>
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex gap-2">
