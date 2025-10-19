@@ -40,9 +40,14 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
     setSaving(true);
     try {
       userService.saveProfile({ ...profile, updatedAt: Date.now() });
-        // Emitir evento para actualizar el Header
-        window.dispatchEvent(new CustomEvent('ecomap_profile_updated'));
-      alert('Perfil guardado');
+      // Emitir evento para actualizar el Header y otros componentes
+      window.dispatchEvent(new CustomEvent('ecomap_profile_updated'));
+      // También disparar evento storage para asegurar actualización
+      window.dispatchEvent(new StorageEvent('storage', { 
+        key: 'ecomap_user_profile_v1',
+        newValue: JSON.stringify(profile)
+      }));
+      alert('✅ Perfil guardado correctamente');
       onClose();
     } finally { setSaving(false); }
   };
@@ -51,8 +56,14 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
   const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    const b64 = await fileToBase64(f);
-    setProfile((p) => p ? { ...p, avatarUrl: b64 } : p);
+    try {
+      const b64 = await fileToBase64(f);
+      setProfile((p) => p ? { ...p, avatarUrl: b64 } : p);
+      console.log('📸 Imagen de perfil actualizada localmente');
+    } catch (error) {
+      console.error('❌ Error al cargar imagen:', error);
+      alert('Error al cargar la imagen');
+    }
   };
 
   if (!isOpen || !profile) return null;

@@ -40,8 +40,15 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
     // Actualizar perfil cuando cambia (desde UserProfile modal)
     useEffect(() => {
       const handleProfileUpdate = () => {
-        setUserProfile(userService.getProfile());
+        console.log('🔄 Header: Actualizando perfil');
+        const newProfile = userService.getProfile();
+        console.log('👤 Header: Nuevo perfil:', newProfile);
+        setUserProfile(newProfile);
       };
+      
+      // Actualizar al montar
+      handleProfileUpdate();
+      
       window.addEventListener('storage', handleProfileUpdate);
       window.addEventListener('ecomap_profile_updated', handleProfileUpdate);
       return () => {
