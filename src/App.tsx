@@ -246,6 +246,16 @@ function App() {
     return () => window.removeEventListener('ecomap_reports_updated', handleReportsUpdated);
   }, [handleRefreshReports]);
 
+  // 🔄 Escuchar cambios globales del administrador (nuevos reportes aprobados/eliminados)
+  useEffect(() => {
+    const handleAdminReportsChanged = () => {
+      console.log('♻️ Reportes actualizados por administrador, refrescando...');
+      handleRefreshReports();
+    };
+    window.addEventListener('ecomap_admin_reports_changed', handleAdminReportsChanged);
+    return () => window.removeEventListener('ecomap_admin_reports_changed', handleAdminReportsChanged);
+  }, [handleRefreshReports]);
+
   const base64ToFile = (base64: string, filename: string, contentType = 'image/jpeg'): File | null => {
     try {
       const arr = base64.split(',');
@@ -445,6 +455,8 @@ function App() {
       <UserProfile isOpen={showProfile} onClose={() => setShowProfile(false)} />
       <AdminPanel isOpen={showAdmin} onClose={() => {
         setShowAdmin(false);
+        // Emitir evento para refrescar reportes cuando se cierra el panel de admin
+        window.dispatchEvent(new Event('ecomap_admin_reports_changed'));
         // Refrescar reportes aprobados al cerrar el panel de admin
         (async () => {
           const { reportService } = await import('./services/reportService');
