@@ -20,7 +20,9 @@ export const StreetView = ({ location, isOpen, onClose }: StreetViewProps) => {
 
   if (!isOpen || !location) return null;
 
-  const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&location=${location.latitude},${location.longitude}&heading=0&pitch=0&fov=90`;
+  // Obtener API Key desde variables de entorno
+  const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=${GOOGLE_MAPS_API_KEY}&location=${location.latitude},${location.longitude}&heading=0&pitch=0&fov=90`;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[1500] bg-white dark:bg-gray-800 shadow-2xl border-t-4 border-primary-500 transition-all duration-300 ease-in-out" style={{ height: '50vh', maxHeight: '500px' }}>
