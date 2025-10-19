@@ -142,8 +142,8 @@ function App() {
           // Adaptar para aceptar ambos formatos: objeto con 'points' o array directo
           const points = Array.isArray(response)
             ? response
-            : Array.isArray(response.points)
-              ? response.points
+            : Array.isArray((response as any).points)
+              ? (response as any).points
               : [];
 
           if (points.length > 0) {
@@ -203,8 +203,8 @@ function App() {
       
       const points = Array.isArray(response)
         ? response
-        : Array.isArray(response.points)
-          ? response.points
+        : Array.isArray((response as any).points)
+          ? (response as any).points
           : [];
 
       if (points.length > 0) {
@@ -463,8 +463,8 @@ function App() {
           const response = await reportService.getApprovedPoints();
           const points = Array.isArray(response)
             ? response
-            : Array.isArray(response.points)
-              ? response.points
+            : Array.isArray((response as any).points)
+              ? (response as any).points
               : [];
           if (points.length > 0) {
             const localReports = storageService.getReports();
