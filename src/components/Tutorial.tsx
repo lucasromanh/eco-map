@@ -162,7 +162,8 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
                 </button>
                 <button
                   onClick={handleNext}
-                  className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800"
+                  className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800 border-2 border-primary-700 dark:border-primary-400"
+                  style={{ boxShadow: '0 0 0 2px #fff' }}
                 >
                   Siguiente →
                 </button>

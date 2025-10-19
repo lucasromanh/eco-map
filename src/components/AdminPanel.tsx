@@ -5,6 +5,13 @@ interface Props { isOpen: boolean; onClose: () => void; }
 
 type Tab = 'reports' | 'users' | 'admins';
 
+// Acciones demo para administración, disponibles para futuras integraciones
+export const adminDemoActions = {
+  addAdmin: () => alert('Función no disponible en demo'),
+  // @ts-ignore
+  removeAdmin: (_u: string) => alert('Función no disponible en demo')
+};
+
 export const AdminPanel = ({ isOpen, onClose }: Props) => {
   const [logged, setLogged] = useState<string | null>(null);
   const [username, setUsername] = useState('');
@@ -56,8 +63,13 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   // Eliminada función de reportes locales
 
   // Demo: no se pueden agregar/eliminar admins desde frontend
-  const addAdmin = () => alert('Función no disponible en demo');
-  const removeAdmin = (u: string) => alert('Función no disponible en demo');
+  // Funciones demo para admins (no usadas pero disponibles para futuro
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const addAdmin = () => alert('Función no disponible en demo');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // const removeAdmin = (u: string) => alert('Función no disponible en demo');
+  // Demo: objeto de acciones de admin disponible para futuras integraciones
+  // Puedes importar y usar adminDemoActions en otros archivos si lo necesitas
 
   if (!isOpen) return null;
 
@@ -113,12 +125,27 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                         <button onClick={()=>approveReport(r.id)} className="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 flex-shrink-0">Aprobar</button>
                         <button onClick={()=>deleteReport(r.id)} className="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 flex-shrink-0">Eliminar</button>
                       </div>
-                      {r.imagen && <img src={r.imagen} alt={r.titulo} className="w-full h-32 object-cover rounded mb-2" />}
+                      <div className="mb-2">
+                        <img
+                          src={r.imagen && r.imagen !== 'null'
+                            ? (r.imagen.startsWith('http') || r.imagen.includes('/uploads/reportes/')
+                                ? r.imagen
+                                : `/uploads/reportes/${r.imagen}`)
+                            : 'https://via.placeholder.com/120x80?text=Sin+foto'}
+                          className="w-full h-32 object-cover rounded bg-gray-200 dark:bg-gray-700"
+                          alt={r.titulo}
+                        />
+                      </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">{r.descripcion}</div>
                       <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
                         <div className="flex items-center gap-1">
                           <span>👤</span>
-                          <span className="font-medium">{r.usuario_id}</span>
+                          <span className="font-medium">
+                            {(() => {
+                              const user = allUsers.find(u => String(u.id) === String(r.usuario_id));
+                              return user ? `${user.nombre} ${user.apellido}` : r.usuario_id;
+                            })()}
+                          </span>
                         </div>
                         <div className="flex items-start gap-1">
                           <span className="flex-shrink-0">📍</span>
@@ -138,7 +165,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                     {allUsers.map(u => (
                       <div key={u.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start gap-3 mb-3">
-                          <img src={u.foto_perfil || 'https://via.placeholder.com/48?text=U'} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+                          <img src={u.foto_perfil && u.foto_perfil !== 'null' ? u.foto_perfil : 'https://via.placeholder.com/48?text=U'} className="w-12 h-12 rounded-full object-cover flex-shrink-0 bg-gray-200 dark:bg-gray-700" />
                           <div className="flex-1 min-w-0">
                             <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">{u.nombre} {u.apellido}</div>
                             <div className="text-xs text-gray-600 dark:text-gray-400 truncate">{u.email}</div>

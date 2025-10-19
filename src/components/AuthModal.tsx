@@ -86,7 +86,7 @@ export const AuthModal = ({ isOpen, onClose, onLogin }: Props) => {
           {isRegister && (
             <input name="password2" placeholder="Repetir contraseña" value={form.password2} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required type="password" />
           )}
-          <button type="submit" className="w-full py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg disabled:opacity-60" disabled={loading}>{loading ? 'Procesando...' : (isRegister ? 'Registrarme' : 'Entrar')}</button>
+          <button type="submit" className="w-full py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-bold border-2 border-primary-700 dark:border-primary-400 disabled:opacity-60" disabled={loading}>{loading ? 'Procesando...' : (isRegister ? 'Registrarme' : 'Entrar')}</button>
         </form>
         <div className="mt-3 text-xs text-center text-gray-500 dark:text-gray-400">
           {isRegister ? (

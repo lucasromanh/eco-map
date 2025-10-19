@@ -1,6 +1,7 @@
 import type { Report } from '../types';
 import { getCategoryInfo } from '../utils/constants';
 import { formatDate, truncateText, formatCoordinates } from '../utils/helpers';
+import { useState } from 'react';
 
 interface ReportListProps {
   reports: Report[];
@@ -17,6 +18,7 @@ export const ReportList = ({
   onSelectReport,
   onDeleteReport,
 }: ReportListProps) => {
+  const [loading, setLoading] = useState(false);
   if (!isOpen) return null;
 
   const sortedReports = [...reports].sort((a, b) => b.timestamp - a.timestamp);
@@ -33,7 +35,7 @@ export const ReportList = ({
       <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto animate-slide-up">
         {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 z-10">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-2">
             <div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                 Reportes
@@ -42,14 +44,35 @@ export const ReportList = ({
                 {reports.length} {reports.length === 1 ? 'reporte' : 'reportes'}
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={async () => {
+                  setLoading(true);
+                  const { reportService } = await import('../services/reportService');
+                  await reportService.getApprovedPoints();
+                  window.location.reload();
+                }}
+                className={`px-2 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded text-sm flex items-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                title="Refrescar reportes"
+                disabled={loading}
+              >
+                {loading && (
+                  <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 01-8 8z" />
+                  </svg>
+                )}
+                Refrescar
+              </button>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -81,7 +104,9 @@ export const ReportList = ({
                   {/* Imagen si existe */}
                   {report.imageUrl && (
                     <img
-                      src={report.imageUrl}
+                      src={report.imageUrl.startsWith('http') || report.imageUrl.includes('/uploads/reportes/')
+                        ? report.imageUrl
+                        : `/uploads/reportes/${report.imageUrl}`}
                       alt={report.title}
                       className="w-full h-32 object-cover rounded-lg mb-3"
                     />

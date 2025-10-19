@@ -135,11 +135,17 @@ function App() {
           const { reportService } = await import('./services/reportService');
           const response = await reportService.getApprovedPoints();
           
-          if (response.ok && Array.isArray(response.points)) {
-            console.log('✅ Reportes del servidor cargados:', response.points.length);
-            
+          // Adaptar para aceptar ambos formatos: objeto con 'points' o array directo
+          const points = Array.isArray(response)
+            ? response
+            : Array.isArray(response.points)
+              ? response.points
+              : [];
+
+          if (points.length > 0) {
+            console.log('✅ Reportes del servidor cargados:', points.length);
             // Convertir reportes del servidor al formato local
-            const serverReports: Report[] = response.points.map((p: any) => ({
+                const serverReports: Report[] = points.map((p: Record<string, any>) => ({
               id: String(p.id),
               title: p.titulo || 'Sin título',
               description: p.descripcion || '',
@@ -151,15 +157,13 @@ function App() {
               timestamp: p.fecha_creacion ? new Date(p.fecha_creacion).getTime() : Date.now(),
               status: 'approved' as const,
             }));
-            
             // Combinar reportes locales y del servidor (evitar duplicados por ID)
             const allReports = [...localReports];
-            serverReports.forEach(serverReport => {
+            serverReports.forEach((serverReport: Report) => {
               if (!allReports.some(r => r.id === serverReport.id)) {
                 allReports.push(serverReport);
               }
             });
-            
             setReports(allReports);
           }
         } catch (error) {
@@ -351,7 +355,41 @@ function App() {
       />
 
       <UserProfile isOpen={showProfile} onClose={() => setShowProfile(false)} />
-      <AdminPanel isOpen={showAdmin} onClose={() => setShowAdmin(false)} />
+      <AdminPanel isOpen={showAdmin} onClose={() => {
+        setShowAdmin(false);
+        // Refrescar reportes aprobados al cerrar el panel de admin
+        (async () => {
+          const { reportService } = await import('./services/reportService');
+          const response = await reportService.getApprovedPoints();
+          const points = Array.isArray(response)
+            ? response
+            : Array.isArray(response.points)
+              ? response.points
+              : [];
+          if (points.length > 0) {
+            const localReports = storageService.getReports();
+            const serverReports = points.map((p: any) => ({
+              id: String(p.id),
+              title: p.titulo || 'Sin título',
+              description: p.descripcion || '',
+              category: p.tipo || 'otro',
+              latitude: parseFloat(p.lat),
+              longitude: parseFloat(p.lng),
+              imageUrl: p.imagen || undefined,
+              userId: String(p.usuario_id),
+              timestamp: p.fecha_creacion ? new Date(p.fecha_creacion).getTime() : Date.now(),
+              status: 'approved' as const,
+            }));
+            const allReports = [...localReports];
+            serverReports.forEach((serverReport: Report) => {
+              if (!allReports.some(r => r.id === serverReport.id)) {
+                allReports.push(serverReport);
+              }
+            });
+            setReports(allReports);
+          }
+        })();
+      }} />
 
       {/* Tutorial, banners e info */}
       {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} />}

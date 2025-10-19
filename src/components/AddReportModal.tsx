@@ -351,7 +351,7 @@ export const AddReportModal = ({
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-bold border-2 border-primary-700 dark:border-primary-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading || !location}
               >
                 {isLoading ? 'Guardando...' : 'Guardar'}
