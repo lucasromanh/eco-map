@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { MapView } from './components/MapView';
 import { useTheme } from './hooks/useTheme';
 import { Header } from './components/Header';
@@ -7,18 +7,31 @@ import { ReportList } from './components/ReportList';
 import { Tutorial } from './components/Tutorial';
 import { InfoBanner } from './components/InfoBanner';
 import { UserProfile } from './components/UserProfile';
-import { AdminPanel } from './components/AdminPanel';
-import { StreetView } from './components/StreetView';
-import { WeatherForecast } from './components/WeatherForecast';
+import { AuthModal } from './components/AuthModal';
 import { useGeolocation } from './hooks/useGeolocation';
 import { storageService } from './services/storageService';
+import { reportService } from './services/reportService';
 import { isRunningStandalone } from './utils/pwa';
 import { userService } from './services/userService';
-import { AuthModal } from './components/AuthModal';
 import { authService } from './services/authService';
 import type { AuthUser } from './services/authService';
 import type { Report } from './types';
 import './App.css';
+
+// ⚡ Code Splitting: Componentes pesados cargados bajo demanda
+const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const StreetView = lazy(() => import('./components/StreetView').then(m => ({ default: m.StreetView })));
+const WeatherForecast = lazy(() => import('./components/WeatherForecast').then(m => ({ default: m.WeatherForecast })));
+
+// Componente de loading para Suspense
+const LoadingFallback = () => (
+  <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mx-auto mb-3"></div>
+      <p className="text-gray-700 dark:text-gray-300 text-sm">Cargando...</p>
+    </div>
+  </div>
+);
 
 function App() {
   const { isDark, toggleTheme } = useTheme();
@@ -136,7 +149,6 @@ function App() {
       const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
       if (!isDevelopment) {
         try {
-          const { reportService } = await import('./services/reportService');
           const response = await reportService.getApprovedPoints();
           
           // Adaptar para aceptar ambos formatos: objeto con 'points' o array directo
@@ -198,7 +210,6 @@ function App() {
     try {
       console.log('🔄 Refrescando reportes...');
       const localReports = storageService.getReports();
-      const { reportService } = await import('./services/reportService');
       const response = await reportService.getApprovedPoints();
       
       const points = Array.isArray(response)
@@ -287,8 +298,6 @@ function App() {
     
     if (!isDevelopment) {
       try {
-        const { reportService } = await import('./services/reportService');
-        
         // Preparar imagen si existe
         let imageFile: File | undefined = undefined;
         if (report.imageFile instanceof File) {
@@ -453,56 +462,63 @@ function App() {
       />
 
       <UserProfile isOpen={showProfile} onClose={() => setShowProfile(false)} />
-      <AdminPanel isOpen={showAdmin} onClose={() => {
-        setShowAdmin(false);
-        // Emitir evento para refrescar reportes cuando se cierra el panel de admin
-        window.dispatchEvent(new Event('ecomap_admin_reports_changed'));
-        // Refrescar reportes aprobados al cerrar el panel de admin
-        (async () => {
-          const { reportService } = await import('./services/reportService');
-          const response = await reportService.getApprovedPoints();
-          const points = Array.isArray(response)
-            ? response
-            : Array.isArray((response as any).points)
-              ? (response as any).points
-              : [];
-          if (points.length > 0) {
-            const localReports = storageService.getReports();
-            const serverReports = points.map((p: any) => ({
-              id: String(p.id),
-              title: p.titulo || 'Sin título',
-              description: p.descripcion || '',
-              category: p.tipo || 'otro',
-              latitude: parseFloat(p.lat),
-              longitude: parseFloat(p.lng),
-              imageUrl: p.imagen || undefined,
-              userId: String(p.usuario_id),
-              timestamp: p.fecha_creacion ? new Date(p.fecha_creacion).getTime() : Date.now(),
-              status: 'approved' as const,
-            }));
-            const allReports = [...localReports];
-            serverReports.forEach((serverReport: Report) => {
-              if (!allReports.some(r => r.id === serverReport.id)) {
-                allReports.push(serverReport);
-              }
-            });
-            setReports(allReports);
-          }
-        })();
-      }} />
+      
+      {/* ⚡ Code Splitting: AdminPanel cargado bajo demanda */}
+      <Suspense fallback={<LoadingFallback />}>
+        <AdminPanel isOpen={showAdmin} onClose={() => {
+          setShowAdmin(false);
+          // Emitir evento para refrescar reportes cuando se cierra el panel de admin
+          window.dispatchEvent(new Event('ecomap_admin_reports_changed'));
+          // Refrescar reportes aprobados al cerrar el panel de admin
+          (async () => {
+            const response = await reportService.getApprovedPoints();
+            const points = Array.isArray(response)
+              ? response
+              : Array.isArray((response as any).points)
+                ? (response as any).points
+                : [];
+            if (points.length > 0) {
+              const localReports = storageService.getReports();
+              const serverReports = points.map((p: any) => ({
+                id: String(p.id),
+                title: p.titulo || 'Sin título',
+                description: p.descripcion || '',
+                category: p.tipo || 'otro',
+                latitude: parseFloat(p.lat),
+                longitude: parseFloat(p.lng),
+                imageUrl: p.imagen || undefined,
+                userId: String(p.usuario_id),
+                timestamp: p.fecha_creacion ? new Date(p.fecha_creacion).getTime() : Date.now(),
+                status: 'approved' as const,
+              }));
+              const allReports = [...localReports];
+              serverReports.forEach((serverReport: Report) => {
+                if (!allReports.some(r => r.id === serverReport.id)) {
+                  allReports.push(serverReport);
+                }
+              });
+              setReports(allReports);
+            }
+          })();
+        }} />
+      </Suspense>
 
-      {/* StreetView */}
-      <StreetView
-        location={location}
-        isOpen={showStreetView}
-        onClose={() => setShowStreetView(false)}
-      />
+      {/* ⚡ Code Splitting: StreetView cargado bajo demanda */}
+      <Suspense fallback={<LoadingFallback />}>
+        <StreetView
+          location={location}
+          isOpen={showStreetView}
+          onClose={() => setShowStreetView(false)}
+        />
+      </Suspense>
 
-      {/* Pronóstico meteorológico */}
-      <WeatherForecast
-        isOpen={showForecast}
-        onClose={() => setShowForecast(false)}
-      />
+      {/* ⚡ Code Splitting: WeatherForecast cargado bajo demanda */}
+      <Suspense fallback={<LoadingFallback />}>
+        <WeatherForecast
+          isOpen={showForecast}
+          onClose={() => setShowForecast(false)}
+        />
+      </Suspense>
 
       {/* Tutorial, banners e info */}
       {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} />}
