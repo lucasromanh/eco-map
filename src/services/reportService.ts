@@ -42,7 +42,11 @@ export const reportService = {
   async getApprovedPoints() {
     console.log('📡 Obteniendo reportes aprobados...');
     try {
-      const res = await fetch(`${API_URL}?action=get_points`);
+      const res = await fetch(`${API_URL}?action=get_points`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
       console.log('📥 Reportes recibidos:', data);
 

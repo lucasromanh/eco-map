@@ -77,13 +77,24 @@ export const ReportList = ({
                 onClick={async () => {
                   if (onRefresh) {
                     setLoading(true);
-                    await onRefresh();
-                    setLoading(false);
+                    try {
+                      // 🧹 Limpiar caché del Service Worker antes de refrescar (fix para Safari iOS)
+                      if ('caches' in window) {
+                        const cacheNames = await caches.keys();
+                        await Promise.all(
+                          cacheNames.map(cacheName => caches.delete(cacheName))
+                        );
+                        console.log('🧹 Caché del SW limpiado');
+                      }
+                      await onRefresh();
+                    } finally {
+                      setLoading(false);
+                    }
                   }
                 }}
                 disabled={loading || !onRefresh}
                 className={`px-2 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded text-sm flex items-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
-                title="Refrescar reportes"
+                title="Refrescar reportes (limpia caché)"
               >
                 {loading && (
                   <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
@@ -135,43 +146,23 @@ export const ReportList = ({
                     <img
                       src={getUnifiedImageUrl(report.imageUrl)}
                       alt={report.title}
+                      crossOrigin="anonymous"
                       className="w-full h-32 object-cover rounded-lg mb-3"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        console.log('❌ Error cargando imagen en lista:', target.src);
-                        
-                        // Intentar con el dominio alternativo como fallback
-                        if (!target.dataset.fallbackAttempted && report.imageUrl) {
+                        console.warn('❌ Error cargando imagen:', target.src);
+
+                        const newHost = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
+                        const oldHost = 'https://ecomap.saltacoders.com';
+
+                        if (!target.dataset.fallbackAttempted) {
                           target.dataset.fallbackAttempted = 'true';
-                          
-                          const newHost = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
-                          const oldHost = 'https://ecomap.saltacoders.com';
-                          
-                          // Si falló el servidor nuevo, probar con el viejo
-                          if (target.src.includes('srv882-files.hstgr.io')) {
-                            const path = target.src.replace(newHost, '');
-                            target.src = `${oldHost}${path}`;
-                            console.log('🔄 Intentando con servidor viejo:', target.src);
-                          }
-                          // Si falló el servidor viejo, probar con el nuevo
-                          else if (target.src.includes('ecomap.saltacoders.com')) {
-                            const path = target.src.replace(oldHost, '');
-                            target.src = `${newHost}${path}`;
-                            console.log('🔄 Intentando con servidor nuevo:', target.src);
-                          }
-                          // Si es relativa, probar ambos
-                          else if (report.imageUrl.startsWith('/uploads/')) {
-                            target.src = `${oldHost}${report.imageUrl}`;
-                            console.log('🔄 Intentando con ruta relativa:', target.src);
-                          } else if (!report.imageUrl.startsWith('http') && !report.imageUrl.startsWith('data:')) {
-                            target.src = `${oldHost}/uploads/reportes/${report.imageUrl}`;
-                            console.log('🔄 Intentando con nombre de archivo:', target.src);
+                          if (target.src.includes('srv882-files')) {
+                            target.src = target.src.replace(newHost, oldHost);
                           } else {
-                            console.log('⚠️ Fallback agotado, ocultando imagen');
-                            target.style.display = 'none';
+                            target.src = target.src.replace(oldHost, newHost);
                           }
                         } else {
-                          console.log('⚠️ Fallback agotado, ocultando imagen');
                           target.style.display = 'none';
                         }
                       }}

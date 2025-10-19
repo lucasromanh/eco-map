@@ -65,7 +65,11 @@ export const adminService = {
   /** 📋 Obtener todos los usuarios registrados (con foto de perfil) */
   async getUsers() {
     try {
-      const res = await fetch(`${API_URL}?action=get_users`);
+      const res = await fetch(`${API_URL}?action=get_users`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
       if (data.ok && Array.isArray(data.usuarios)) {
         return data.usuarios;
@@ -80,7 +84,11 @@ export const adminService = {
   /** 🌍 Obtener TODOS los reportes (aprobados + pendientes, solo admin) */
   async getAllReports() {
     try {
-      const res = await fetch(`${API_URL}?action=get_points&admin=1`);
+      const res = await fetch(`${API_URL}?action=get_points&admin=1`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
       return data.ok && Array.isArray(data.puntos) ? data.puntos : [];
     } catch (error) {
@@ -92,7 +100,11 @@ export const adminService = {
   /** 🕓 Obtener reportes pendientes (no aprobados) */
   async getPendingReports() {
     try {
-      const res = await fetch(`${API_URL}?action=get_pending_reports`);
+      const res = await fetch(`${API_URL}?action=get_pending_reports`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
       console.log('📥 Reportes pendientes recibidos:', data);
       if (data.ok && Array.isArray(data.puntos)) {
@@ -109,7 +121,11 @@ export const adminService = {
   /** ✅ Obtener reportes aprobados */
   async getApprovedReports() {
     try {
-      const res = await fetch(`${API_URL}?action=get_approved_reports`);
+      const res = await fetch(`${API_URL}?action=get_approved_reports`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
       return data.ok && Array.isArray(data.puntos)
         ? data.puntos
@@ -170,7 +186,11 @@ export const adminService = {
   /** 🔌 Verificar conexión con la base de datos */
   async pingDatabase(): Promise<APIResponse> {
     try {
-      const res = await fetch(`${API_URL}?action=ping_db`);
+      const res = await fetch(`${API_URL}?action=ping_db`, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' }
+      });
       const data = await res.json();
       return data;
     } catch (error) {
