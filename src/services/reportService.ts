@@ -41,9 +41,21 @@ export const reportService = {
    */
   async getApprovedPoints() {
     console.log('📡 Obteniendo reportes aprobados...');
-    const res = await fetch(`${API_URL}?action=get_points`);
-    const data = await res.json().catch(() => ({ points: [] }));
-    console.log('📥 Reportes recibidos:', data);
-    return data;
+    try {
+      const res = await fetch(`${API_URL}?action=get_points`);
+      const data = await res.json();
+      console.log('📥 Reportes recibidos:', data);
+
+      // Soporte flexible para distintas respuestas
+      if (Array.isArray(data)) return data;
+      if (Array.isArray(data.points)) return data.points;
+      if (Array.isArray(data.puntos)) return data.puntos; // ✅ tu caso real
+
+      console.warn('⚠️ Formato inesperado en getApprovedPoints:', data);
+      return [];
+    } catch (err) {
+      console.error('❌ Error al obtener puntos:', err);
+      return [];
+    }
   },
 };
