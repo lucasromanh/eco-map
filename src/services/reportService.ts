@@ -44,33 +44,14 @@ export const reportService = {
     try {
       const res = await fetch(`${API_URL}?action=get_points`);
       const data = await res.json();
+      console.log('📥 Reportes recibidos:', data);
 
-      let puntos = [];
-      if (Array.isArray(data.puntos)) puntos = data.puntos;
-      else if (Array.isArray(data.points)) puntos = data.points;
-      else if (Array.isArray(data)) puntos = data;
+      if (Array.isArray(data.puntos)) return data.puntos;
+      if (Array.isArray(data.points)) return data.points;
+      if (Array.isArray(data)) return data;
 
-      // 🔁 Reescribir URLs de imágenes si son relativas o con dominio viejo
-      const HOST_URL = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
-    interface PuntoRaw {
-      imagen?: string;
-      [key: string]: any;
-    }
-
-    interface PuntoProcessed extends PuntoRaw {
-      imagen?: string;
-    }
-
-    puntos = (puntos as PuntoRaw[]).map((p): PuntoProcessed => ({
-      ...p,
-      imagen:
-        p.imagen && !p.imagen.startsWith(HOST_URL)
-        ? p.imagen.replace('https://ecomap.saltacoders.com', HOST_URL)
-        : p.imagen,
-    }));
-
-      console.log('📥 Reportes procesados:', puntos.length);
-      return puntos;
+      console.warn('⚠️ Formato inesperado en getApprovedPoints:', data);
+      return [];
     } catch (err) {
       console.error('❌ Error al obtener puntos:', err);
       return [];
