@@ -408,6 +408,8 @@ function App() {
         isDark={isDark}
         toggleTheme={toggleTheme}
         reportCount={reports.length}
+        onInstall={handleInstallClick}
+        showInstallButton={!!deferredPrompt}
       />
 
       {/* Mapa */}

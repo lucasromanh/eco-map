@@ -17,9 +17,11 @@ interface HeaderProps {
   isDark?: boolean;
   toggleTheme?: () => void;
   reportCount?: number;
+  onInstall?: () => void;
+  showInstallButton?: boolean;
 }
 
-export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme, reportCount }: HeaderProps) => {
+export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme, reportCount, onInstall, showInstallButton }: HeaderProps) => {
   // Usar useTheme para mostrar el estado actual del tema
   const theme = useTheme();
   // Fallbacks: si no pasan isDark/toggleTheme por props, usamos el hook
@@ -240,6 +242,17 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
                       <div className="text-xs text-gray-500">Agregar con foto y ubicación</div>
                     </div>
                   </button>
+
+                  {showInstallButton && onInstall && (
+                    <button onClick={() => { onInstall(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-green-100 dark:hover:bg-green-900 text-left border-t border-b border-gray-200 dark:border-gray-700">
+                      <span>📲</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-green-700 dark:text-green-400">Instalar aplicación</div>
+                        <div className="text-xs text-gray-500">Usar como app nativa</div>
+                      </div>
+                    </button>
+                  )}
+
                   <button onClick={() => { window.dispatchEvent(new CustomEvent('ecomap_open_profile')); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                     <span>👤</span>
                     <div className="flex-1">
