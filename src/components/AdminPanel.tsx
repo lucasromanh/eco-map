@@ -1,37 +1,10 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../services/adminService';
+import { getUnifiedImageUrl } from '../utils/imageHelpers';
 
 interface Props { isOpen: boolean; onClose: () => void; }
 
 type Tab = 'reports' | 'users' | 'admins';
-
-// Helper para normalizar URLs de imágenes con fallback
-const getImageUrl = (imageUrl: string | null | undefined): string => {
-  if (!imageUrl || imageUrl === 'null') {
-    return 'https://via.placeholder.com/120x80?text=Sin+foto';
-  }
-  
-  // 🔧 Limpiar URLs duplicadas (ej: /ecomap/uploads → /uploads)
-  let cleanUrl = imageUrl;
-  if (cleanUrl.includes('/ecomap/uploads/')) {
-    cleanUrl = cleanUrl.replace('/ecomap/uploads/', '/uploads/');
-  }
-  
-  // Si ya es una URL completa, usarla tal cual
-  if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
-    return cleanUrl;
-  }
-  
-  // Preferir el nuevo servidor
-  const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
-  
-  if (cleanUrl.startsWith('/uploads/')) {
-    return `${NEW_HOST}${cleanUrl}`;
-  }
-  
-  // Si solo es el nombre del archivo, construir URL completa
-  return `${NEW_HOST}/uploads/reportes/${cleanUrl}`;
-};
 
 // Acciones demo para administración, disponibles para futuras integraciones
 export const adminDemoActions = {
@@ -216,17 +189,17 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                         </div>
                         <div className="mb-2">
                           <img
-                            src={getImageUrl(r.imagen)}
+                            src={getUnifiedImageUrl(r.imagen)}
                             className="w-full h-32 object-cover rounded bg-gray-200 dark:bg-gray-700"
                             alt={r.titulo}
                             onLoad={() => {
-                              console.log('✅ Imagen cargada:', r.imagen, '→', getImageUrl(r.imagen));
+                              console.log('✅ Imagen cargada:', r.imagen, '→', getUnifiedImageUrl(r.imagen));
                             }}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               console.log('❌ Error cargando imagen');
                               console.log('   📎 URL original BD:', r.imagen);
-                              console.log('   🔗 URL generada:', getImageUrl(r.imagen));
+                              console.log('   🔗 URL generada:', getUnifiedImageUrl(r.imagen));
                               console.log('   🌐 URL intentada:', target.src);
                               
                               // Intentar con el dominio alternativo como fallback

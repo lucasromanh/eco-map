@@ -1,40 +1,8 @@
 import type { Report } from '../types';
 import { getCategoryInfo } from '../utils/constants';
 import { formatDate, truncateText, formatCoordinates } from '../utils/helpers';
+import { getUnifiedImageUrl } from '../utils/imageHelpers';
 import { useState } from 'react';
-
-// Helper para normalizar URLs de imágenes con fallback
-const getImageUrl = (imageUrl: string | undefined): string => {
-  if (!imageUrl) {
-    return '';
-  }
-  
-  // 🔧 Limpiar URLs duplicadas (ej: /ecomap/uploads → /uploads)
-  let cleanUrl = imageUrl;
-  if (cleanUrl.includes('/ecomap/uploads/')) {
-    cleanUrl = cleanUrl.replace('/ecomap/uploads/', '/uploads/');
-  }
-  
-  // Si ya es una URL completa, usarla tal cual
-  if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
-    return cleanUrl;
-  }
-  
-  // Si es base64, devolverla tal cual
-  if (cleanUrl.startsWith('data:')) {
-    return cleanUrl;
-  }
-  
-  // Preferir el nuevo servidor
-  const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
-  
-  if (cleanUrl.startsWith('/uploads/')) {
-    return `${NEW_HOST}${cleanUrl}`;
-  }
-  
-  // Si solo es el nombre del archivo, construir URL completa
-  return `${NEW_HOST}/uploads/reportes/${cleanUrl}`;
-};
 
 interface ReportListProps {
   reports: Report[];
@@ -140,7 +108,7 @@ export const ReportList = ({
                   {/* Imagen si existe */}
                   {report.imageUrl && (
                     <img
-                      src={getImageUrl(report.imageUrl)}
+                      src={getUnifiedImageUrl(report.imageUrl)}
                       alt={report.title}
                       className="w-full h-32 object-cover rounded-lg mb-3"
                       onError={(e) => {
