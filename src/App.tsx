@@ -41,7 +41,7 @@ function App() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [clickedLocation, setClickedLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [showTutorial, setShowTutorial] = useState(true);
-  // const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showWeatherPanel, setShowWeatherPanel] = useState(false);
   const [effectsEnabled, setEffectsEnabled] = useState<boolean>(() => {
     try {
@@ -116,27 +116,27 @@ function App() {
     return () => clearTimeout(t);
   }, []);
 
-  // Detectar evento de instalación PWA (deshabilitado por ahora)
-  // useEffect(() => {
-  //   const handler = (e: any) => {
-  //     e.preventDefault();
-  //     setDeferredPrompt(e);
-  //   };
-  //   window.addEventListener('beforeinstallprompt', handler);
-  //   return () => window.removeEventListener('beforeinstallprompt', handler);
-  // }, []);
+  // Detectar evento de instalación PWA
+  useEffect(() => {
+    const handler = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
-  // const handleInstallClick = async () => {
-  //   if (!deferredPrompt) {
-  //     alert(
-  //       'Para instalar EcoMap:\n\nEn Android/Chrome: Menú (⋮) → "Instalar aplicación"\n\nEn iPhone/Safari: Compartir (↗) → "Añadir a pantalla de inicio"'
-  //     );
-  //     return;
-  //   }
-  //   deferredPrompt.prompt();
-  //   await deferredPrompt.userChoice;
-  //   setDeferredPrompt(null);
-  // };
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      alert(
+        'Para instalar EcoMap:\n\nEn Android/Chrome: Menú (⋮) → "Instalar aplicación"\n\nEn iPhone/Safari: Compartir (↗) → "Añadir a pantalla de inicio"'
+      );
+      return;
+    }
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+  };
 
   // Cargar reportes al iniciar (local + servidor)
   useEffect(() => {
