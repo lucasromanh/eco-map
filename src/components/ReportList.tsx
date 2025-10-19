@@ -9,25 +9,31 @@ const getImageUrl = (imageUrl: string | undefined): string => {
     return '';
   }
   
+  // 🔧 Limpiar URLs duplicadas (ej: /ecomap/uploads → /uploads)
+  let cleanUrl = imageUrl;
+  if (cleanUrl.includes('/ecomap/uploads/')) {
+    cleanUrl = cleanUrl.replace('/ecomap/uploads/', '/uploads/');
+  }
+  
   // Si ya es una URL completa, usarla tal cual
-  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-    return imageUrl;
+  if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+    return cleanUrl;
   }
   
   // Si es base64, devolverla tal cual
-  if (imageUrl.startsWith('data:')) {
-    return imageUrl;
+  if (cleanUrl.startsWith('data:')) {
+    return cleanUrl;
   }
   
   // Preferir el nuevo servidor
   const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
   
-  if (imageUrl.startsWith('/uploads/')) {
-    return `${NEW_HOST}${imageUrl}`;
+  if (cleanUrl.startsWith('/uploads/')) {
+    return `${NEW_HOST}${cleanUrl}`;
   }
   
   // Si solo es el nombre del archivo, construir URL completa
-  return `${NEW_HOST}/uploads/reportes/${imageUrl}`;
+  return `${NEW_HOST}/uploads/reportes/${cleanUrl}`;
 };
 
 interface ReportListProps {

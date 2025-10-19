@@ -12,25 +12,31 @@ const getImageUrl = (imageUrl: string | undefined): string => {
     return '';
   }
   
+  // 🔧 Limpiar URLs duplicadas (ej: /ecomap/uploads → /uploads)
+  let cleanUrl = imageUrl;
+  if (cleanUrl.includes('/ecomap/uploads/')) {
+    cleanUrl = cleanUrl.replace('/ecomap/uploads/', '/uploads/');
+  }
+  
   // Si ya es una URL completa, usarla tal cual
-  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-    return imageUrl;
+  if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+    return cleanUrl;
   }
   
   // Si es base64, devolverla tal cual
-  if (imageUrl.startsWith('data:')) {
-    return imageUrl;
+  if (cleanUrl.startsWith('data:')) {
+    return cleanUrl;
   }
   
   // Preferir el nuevo servidor
   const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
   
-  if (imageUrl.startsWith('/uploads/')) {
-    return `${NEW_HOST}${imageUrl}`;
+  if (cleanUrl.startsWith('/uploads/')) {
+    return `${NEW_HOST}${cleanUrl}`;
   }
   
   // Si solo es el nombre del archivo, construir URL completa
-  return `${NEW_HOST}/uploads/reportes/${imageUrl}`;
+  return `${NEW_HOST}/uploads/reportes/${cleanUrl}`;
 };
 
 // Fix para los iconos de Leaflet
@@ -522,10 +528,18 @@ export const MapView = ({
       {/* Botón para alternar vista satélite */}
       <button
         onClick={() => setShowSatellite(!showSatellite)}
-        className="absolute bottom-4 right-4 z-[1000] map-control-btn bg-white dark:bg-gray-800"
+        className="absolute bottom-4 right-4 z-[1000] bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
         title={showSatellite ? 'Vista de mapa' : 'Vista satélite'}
       >
-        <span className="text-lg">{showSatellite ? '🗺️' : '🛰️'}</span>
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          {showSatellite ? (
+            // Icono de mapa
+            <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>
+          ) : (
+            // Icono de satélite
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM5 4.99h3L12 9 5 15.99V4.99zM19 19.01h-3L12 15l7-6.01v10.02z"/>
+          )}
+        </svg>
       </button>
 
       {/* Street View integrado - solo visible cuando showStreetView es true */}

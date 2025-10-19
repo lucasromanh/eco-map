@@ -162,29 +162,59 @@ button, a, input, textarea, select {
 }
 
 /* Efectos visuales de clima */
-.weather-overlay { pointer-events: none; position: absolute; inset: 0; z-index: 900; overflow: hidden; }
-.weather-overlay .wfx-item { position: absolute; display: block; }
+.weather-overlay { 
+  pointer-events: none; 
+  position: absolute; 
+  inset: 0; 
+  z-index: 950 !important; 
+  overflow: hidden; 
+  will-change: transform;
+  transform: translateZ(0);
+}
+.weather-overlay .wfx-item { 
+  position: absolute; 
+  display: block;
+  will-change: transform;
+  transform: translateZ(0);
+}
 .weather-overlay .wfx-item { left: calc(100% * var(--x)); top: calc(100% * var(--y)); transform: scale(var(--scale, 1)); }
 
 /* Lluvia */
 .rain .wfx-item {
-  width: 2px; height: 18vh; background: rgba(59,130,246,0.35); border-radius: 1px;
+  width: 2px; 
+  height: 18vh; 
+  background: rgba(59,130,246,0.35); 
+  border-radius: 1px;
   transform: translate(-20vw, -20vh) rotate(-15deg);
-  animation: raindrop 1.2s linear infinite; animation-delay: calc(-1.2s * var(--x));
+  animation: raindrop 1.2s linear infinite; 
+  animation-delay: calc(-1.2s * var(--x));
+  will-change: transform;
+  backface-visibility: hidden;
 }
-@keyframes raindrop { to { transform: translate(-20vw, 120vh) rotate(-15deg); } }
+@keyframes raindrop { 
+  to { transform: translate(-20vw, 120vh) rotate(-15deg); } 
+}
 
 /* Nubes */
 .clouds .wfx-item {
-  width: calc(120px + 160px * var(--scale)); height: calc(60px + 80px * var(--scale)); background: rgba(107,114,128,0.28); filter: blur(0.6px);
-  border-radius: 90px; left: -240px;
+  width: calc(120px + 160px * var(--scale)); 
+  height: calc(60px + 80px * var(--scale)); 
+  background: rgba(107,114,128,0.28); 
+  filter: blur(0.6px);
+  border-radius: 90px; 
+  left: -240px;
   box-shadow:
     30px 10px 0 10px rgba(107,114,128,0.28),
     80px 15px 0 0 rgba(107,114,128,0.24),
     120px -10px 0 8px rgba(107,114,128,0.28);
-  animation: cloud-move var(--dur, 50s) linear infinite; animation-delay: calc(-1s * (var(--x) + var(--y)));
+  animation: cloud-move var(--dur, 50s) linear infinite; 
+  animation-delay: calc(-1s * (var(--x) + var(--y)));
+  will-change: transform;
+  backface-visibility: hidden;
 }
-@keyframes cloud-move { to { transform: translateX(140vw); } }
+@keyframes cloud-move { 
+  to { transform: translateX(140vw); } 
+}
 
 /* Niebla */
 .fog { background: radial-gradient(circle at 50% 50%, rgba(209,213,219,0.18), rgba(209,213,219,0.08)); filter: blur(2px); opacity: 0.35; }
@@ -192,12 +222,20 @@ button, a, input, textarea, select {
 
 /* Nieve */
 .snow .wfx-item {
-  width: 6px; height: 6px; background: white; border-radius: 50%;
+  width: 6px; 
+  height: 6px; 
+  background: white; 
+  border-radius: 50%;
   box-shadow: 0 0 6px rgba(255,255,255,0.7);
   transform: translate(-10vw, -10vh);
-  animation: snowflake 4s linear infinite; animation-delay: calc(-4s * var(--x));
+  animation: snowflake 4s linear infinite; 
+  animation-delay: calc(-4s * var(--x));
+  will-change: transform;
+  backface-visibility: hidden;
 }
-@keyframes snowflake { to { transform: translate(-10vw, 110vh); } }
+@keyframes snowflake { 
+  to { transform: translate(-10vw, 110vh); } 
+}
 
 /* Trueno (flash) */
 .thunder { background: rgba(255,255,255,0.0); animation: thunder-flash 6s infinite; }
