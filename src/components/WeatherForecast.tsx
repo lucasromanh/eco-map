@@ -165,8 +165,8 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                     onClick={() => setSelectedDay(index)}
                     className={`flex-shrink-0 px-4 py-3 rounded-xl border-2 transition-all ${
                       selectedDay === index
-                        ? 'bg-primary-500 border-primary-500 text-white shadow-lg scale-105'
-                        : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-primary-400'
+                        ? 'bg-primary-600 border-primary-600 text-white shadow-lg scale-105'
+                        : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-200 hover:border-primary-400'
                     }`}
                   >
                     <div className="text-center">

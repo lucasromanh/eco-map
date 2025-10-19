@@ -156,7 +156,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
               <>
                 <button
                   onClick={handleSkip}
-                  className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-400 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-md"
+                  className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-md"
                 >
                   Saltar
                 </button>

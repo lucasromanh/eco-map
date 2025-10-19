@@ -5,39 +5,7 @@ import type { Report, UserLocation, EnvironmentalData } from '../types';
 import { DEFAULT_CENTER, DEFAULT_ZOOM, TILE_LAYERS, getCategoryInfo } from '../utils/constants';
 import { formatCoordinates, formatDate } from '../utils/helpers';
 import { environmentalService } from '../services/environmentalService';
-
-// Helper para normalizar URLs de imágenes con fallback
-const getImageUrl = (imageUrl: string | undefined): string => {
-  if (!imageUrl) {
-    return '';
-  }
-  
-  // 🔧 Limpiar URLs duplicadas (ej: /ecomap/uploads → /uploads)
-  let cleanUrl = imageUrl;
-  if (cleanUrl.includes('/ecomap/uploads/')) {
-    cleanUrl = cleanUrl.replace('/ecomap/uploads/', '/uploads/');
-  }
-  
-  // Si ya es una URL completa, usarla tal cual
-  if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
-    return cleanUrl;
-  }
-  
-  // Si es base64, devolverla tal cual
-  if (cleanUrl.startsWith('data:')) {
-    return cleanUrl;
-  }
-  
-  // Preferir el nuevo servidor
-  const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
-  
-  if (cleanUrl.startsWith('/uploads/')) {
-    return `${NEW_HOST}${cleanUrl}`;
-  }
-  
-  // Si solo es el nombre del archivo, construir URL completa
-  return `${NEW_HOST}/uploads/reportes/${cleanUrl}`;
-};
+import { getUnifiedImageUrl } from '../utils/imageHelpers';
 
 // Fix para los iconos de Leaflet
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -268,7 +236,7 @@ export const MapView = ({
               <Popup>
                 <div className="p-2">
                   <h3 className="font-bold text-primary-600">Tu ubicación</h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
                     {formatCoordinates(userLocation.latitude, userLocation.longitude)}
                   </p>
                   {environmentalData && (
@@ -317,8 +285,8 @@ export const MapView = ({
             <Popup>
               <div className="p-2">
                 <h3 className="font-bold text-primary-600">Salta Capital — Punto de acceso</h3>
-                <p className="text-sm text-gray-600">Usa este punto para empezar a explorar y crear reportes.</p>
-                <p className="text-xs text-gray-500 mt-1">📍 {formatCoordinates(DEFAULT_CENTER[0], DEFAULT_CENTER[1])}</p>
+                <p className="text-sm text-gray-700 dark:text-gray-300">Usa este punto para empezar a explorar y crear reportes.</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">📍 {formatCoordinates(DEFAULT_CENTER[0], DEFAULT_CENTER[1])}</p>
               </div>
             </Popup>
           </Marker>
@@ -333,7 +301,7 @@ export const MapView = ({
           >
             <Popup maxWidth={300}>
               <div className="p-2">
-                <h3 className="font-bold text-lg text-gray-900 mb-1">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">
                   {report.title}
                 </h3>
                 <div className="flex items-center space-x-2 mb-2">
@@ -343,16 +311,16 @@ export const MapView = ({
                   }}>
                     {getCategoryInfo(report.category)?.icon} {getCategoryInfo(report.category)?.label}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
                     {formatDate(report.timestamp)}
                   </span>
                 </div>
-                <p className="text-sm text-gray-700 mb-2">
+                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
                   {report.description}
                 </p>
                 {report.imageUrl && (
                   <img
-                    src={getImageUrl(report.imageUrl)}
+                    src={getUnifiedImageUrl(report.imageUrl)}
                     alt={report.title}
                     className="w-full h-32 object-cover rounded-lg"
                     onError={(e) => {
@@ -396,7 +364,7 @@ export const MapView = ({
                     }}
                   />
                 )}
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                   📍 {formatCoordinates(report.latitude, report.longitude)}
                 </p>
               </div>
@@ -450,7 +418,7 @@ export const MapView = ({
                 <input type="checkbox" className="accent-green-600" checked={effectsEnabled} onChange={() => { /* controlado por Header/App */ }} />
                 Efectos visuales (Header)
               </label>
-              {forcedEffect && <span className="text-[10px] text-gray-500">forzado: {forcedEffect}</span>}
+              {forcedEffect && <span className="text-[10px] text-gray-600 dark:text-gray-400">forzado: {forcedEffect}</span>}
             </div>
             <div className="flex justify-between items-center text-xs py-1">
               <label className="text-gray-800 dark:text-gray-400 flex items-center gap-2 font-medium" title="Usar el centro del mapa para consultar los datos (útil si el GPS es impreciso)">
@@ -462,7 +430,7 @@ export const MapView = ({
                 />
                 Usar centro del mapa
               </label>
-              <span className="text-[10px] text-gray-500">{preferCenter ? '📍 Centro' : (userLocation ? '📍 GPS' : '📍 Predeterminado')}</span>
+              <span className="text-[10px] text-gray-600 dark:text-gray-400">{preferCenter ? '📍 Centro' : (userLocation ? '📍 GPS' : '📍 Predeterminado')}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-800 dark:text-gray-400 flex items-center gap-1 font-medium">
@@ -517,7 +485,7 @@ export const MapView = ({
                   {envScore.label} ({envScore.score}/100)
                 </p>
               </div>
-              <p className="mt-2 text-[10px] text-gray-500 dark:text-gray-400">
+              <p className="mt-2 text-[10px] text-gray-600 dark:text-gray-400">
                 Fuente: Open‑Meteo. Puede diferir de otras apps por proveedor y hora de medición.
               </p>
             </div>
