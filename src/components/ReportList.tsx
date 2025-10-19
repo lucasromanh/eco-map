@@ -2,6 +2,8 @@ import type { Report } from '../types';
 import { getCategoryInfo } from '../utils/constants';
 import { formatDate, truncateText, formatCoordinates } from '../utils/helpers';
 import { getUnifiedImageUrl } from '../utils/imageHelpers';
+import { userService } from '../services/userService';
+import { reportService } from '../services/reportService';
 import { useState } from 'react';
 
 interface ReportListProps {
@@ -25,6 +27,29 @@ export const ReportList = ({
   if (!isOpen) return null;
 
   const sortedReports = [...reports].sort((a, b) => b.timestamp - a.timestamp);
+
+  // Función para eliminar reporte con validación de usuario
+  const handleDeleteReport = async (reportId: string) => {
+    const user = userService.getProfile();
+    if (!user) {
+      alert('⚠️ Debes iniciar sesión para eliminar un reporte');
+      return;
+    }
+
+    const isAdmin = !!localStorage.getItem('adminUser');
+    const res = await reportService.deleteReport(String(reportId), String(user.id), isAdmin);
+
+    if (res.ok) {
+      alert('✅ Reporte eliminado correctamente');
+      onDeleteReport(reportId); // Actualizar UI local
+      onRefresh?.(); // Refrescar desde backend
+    } else {
+      const errorMsg = res.error === 'UNAUTHORIZED_DELETE' 
+        ? '❌ Solo puedes eliminar tus propios reportes'
+        : '❌ Error al eliminar el reporte';
+      alert(errorMsg);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[2000] overflow-hidden">
@@ -192,7 +217,7 @@ export const ReportList = ({
                       onClick={(e) => {
                         e.stopPropagation();
                         if (confirm('¿Estás seguro de eliminar este reporte?')) {
-                          onDeleteReport(report.id);
+                          handleDeleteReport(report.id);
                         }
                       }}
                       className="ml-2 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
@@ -218,14 +243,23 @@ export const ReportList = ({
         {sortedReports.length > 0 && (
           <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
             <button
-              onClick={() => {
-                if (confirm('¿Estás seguro de eliminar TODOS los reportes?')) {
-                  sortedReports.forEach(report => onDeleteReport(report.id));
+              onClick={async () => {
+                if (confirm('¿Estás seguro de eliminar TODOS tus reportes?')) {
+                  const user = userService.getProfile();
+                  if (!user) {
+                    alert('⚠️ Debes iniciar sesión');
+                    return;
+                  }
+                  
+                  // Eliminar solo los reportes del usuario actual
+                  for (const report of sortedReports) {
+                    await handleDeleteReport(report.id);
+                  }
                 }
               }}
               className="w-full py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
             >
-              Eliminar todos
+              Eliminar todos mis reportes
             </button>
           </div>
         )}

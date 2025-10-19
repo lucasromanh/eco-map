@@ -57,4 +57,36 @@ export const reportService = {
       return [];
     }
   },
+
+  /**
+   * 🗑️ Eliminar un reporte
+   * - Solo puede eliminarlo su autor (usuario_id)
+   * - Los administradores pueden eliminar cualquiera si pasan admin=1
+   */
+  async deleteReport(reportId: string, usuarioId: string, isAdmin: boolean = false) {
+    console.log(`🗑️ Eliminando reporte #${reportId} por usuario ${usuarioId}...`);
+    const fd = new FormData();
+    fd.append('action', 'delete_point');
+    fd.append('id', reportId);
+    fd.append('usuario_id', usuarioId);
+    if (isAdmin) fd.append('admin', '1');
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: fd,
+      });
+      const data = await res.json();
+      console.log('📥 Respuesta del backend:', data);
+
+      if (!data.ok) {
+        console.warn('⚠️ No se pudo eliminar el reporte:', data.error || 'Error desconocido');
+      }
+
+      return data;
+    } catch (err) {
+      console.error('❌ Error eliminando reporte:', err);
+      return { ok: false, error: 'NETWORK_ERROR' };
+    }
+  },
 };
