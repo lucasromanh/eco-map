@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { adminService, moderationService, userService } from '../services/userService';
+import { moderationService, userService } from '../services/userService';
+import { adminService as backendAdminService } from '../services/adminService';
 import type { Report, UserProfile } from '../types';
 import { formatCoordinates } from '../utils/helpers';
 
@@ -13,18 +14,39 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   const [password, setPassword] = useState('');
   const [tab, setTab] = useState<Tab>('reports');
   const [reports, setReports] = useState<Report[]>([]);
+  const [pendingReports, setPendingReports] = useState<Report[]>([]);
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [addresses, setAddresses] = useState<Record<string, string>>({});
-  const admins = adminService.getAdmins();
+  // Admins locales (demo)
+  const profile = userService.getProfile();
+  const admins = profile ? [{ username: profile.firstName, createdAt: Date.now() }] : [];
 
   useEffect(() => {
     if (!isOpen) return;
-    setLogged(adminService.current());
+    // Cargar usuarios desde backend
+    backendAdminService.getUsers().then(data => {
+      if (Array.isArray(data.users)) setAllUsers(data.users);
+    });
+    // Cargar reportes aprobados y pendientes desde backend
+    backendAdminService.getPendingReports().then(data => {
+      if (Array.isArray(data.reports)) setPendingReports(data.reports);
+    });
+    // Cargar reportes locales (demo)
     setReports(moderationService.listReports());
-    // En esta versión local solo hay un perfil en storage del cliente actual
-    const me = userService.getProfile();
-    setAllUsers(me ? [me] : []);
   }, [isOpen]);
+
+  // Aprobar reporte (debe estar fuera del useEffect)
+  const approveReport = async (id: string) => {
+    const res = await backendAdminService.approveReport(id);
+    if (res.ok) {
+      alert('Reporte aprobado');
+      // Actualizar lista de pendientes
+      const data = await backendAdminService.getPendingReports();
+      if (Array.isArray(data.reports)) setPendingReports(data.reports);
+    } else {
+      alert('Error al aprobar el reporte');
+    }
+  };
 
   // Fetch addresses for reports
   useEffect(() => {
@@ -44,33 +66,21 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   }, [tab, reports, addresses]);
 
   const onLogin = () => {
-    if (adminService.login(username, password)) {
-      setLogged(adminService.current());
-      setUsername(''); setPassword('');
-    } else {
-      alert('Credenciales inválidas');
-    }
+    // Demo local, solo cambia estado
+    setLogged(username);
+    setUsername(''); setPassword('');
   };
 
-  const onLogout = () => { adminService.logout(); setLogged(null); };
+  const onLogout = () => { setLogged(null); };
 
   const deleteReport = (id: string) => {
     moderationService.deleteReport(id);
     setReports(moderationService.listReports());
   };
 
-  const addAdmin = () => {
-    const u = prompt('Usuario administrador nuevo:');
-    if (!u) return;
-    adminService.addAdmin(u);
-    alert('Administrador agregado');
-  };
-
-  const removeAdmin = (u: string) => {
-    if (!confirm('¿Eliminar administrador?')) return;
-    adminService.removeAdmin(u);
-    alert('Administrador eliminado');
-  };
+  // Demo: no se pueden agregar/eliminar admins desde frontend
+  const addAdmin = () => alert('Función no disponible en demo');
+  const removeAdmin = (u: string) => alert('Función no disponible en demo');
 
   if (!isOpen) return null;
 
@@ -119,13 +129,14 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
 
               {tab==='reports' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
-                  {reports.map(r => {
-                    const user = allUsers.find(u => u.id === r.userId) || userService.getProfile();
+                  {pendingReports.map(r => {
+                    const user = allUsers.find(u => u.id === r.userId);
                     const userName = user ? `${user.firstName} ${user.lastName}` : 'Usuario desconocido';
                     return (
                       <div key={r.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start justify-between mb-2">
                           <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1 flex-1">{r.title || 'Reporte'}</div>
+                          <button onClick={()=>approveReport(r.id)} className="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 flex-shrink-0">Aprobar</button>
                           <button onClick={()=>deleteReport(r.id)} className="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 flex-shrink-0">Eliminar</button>
                         </div>
                         {r.imageUrl && <img src={r.imageUrl} alt={r.title} className="w-full h-32 object-cover rounded mb-2" />}
@@ -149,27 +160,29 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                       </div>
                     );
                   })}
-                  {reports.length===0 && <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">No hay reportes.</div>}
+                  {pendingReports.length===0 && <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">No hay reportes pendientes.</div>}
                 </div>
               )}
 
               {tab==='users' && (
                 <div className="mt-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Usuarios registrados en este dispositivo (demo local)</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Usuarios registrados en el sistema</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {allUsers.map(u => (
                       <div key={u.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start gap-3 mb-3">
-                          <img src={u.avatarUrl || 'https://via.placeholder.com/48?text=U'} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+                          <img src={u.foto_perfil || u.avatarUrl || 'https://via.placeholder.com/48?text=U'} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">{u.firstName} {u.lastName}</div>
+                            <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">{u.nombre || u.firstName} {u.apellido || u.lastName}</div>
                             <div className="text-xs text-gray-600 dark:text-gray-400 truncate">{u.email}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-500">{u.phone || 'sin teléfono'}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-500">{u.telefono || u.phone || 'sin teléfono'}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-500">{u.direccion || u.address || ''}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-500">Edad: {u.edad || u.age || '-'}</div>
                           </div>
                         </div>
                         <div className="flex gap-2">
                           <button className="flex-1 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded">Editar</button>
-                          <button className="flex-1 px-2 py-1 text-xs bg-yellow-500 text-white rounded" onClick={()=>alert('Usuario bloqueado (demo local)')}>Bloquear</button>
+                          <button className="flex-1 px-2 py-1 text-xs bg-yellow-500 text-white rounded" onClick={()=>alert('Usuario bloqueado (demo)')}>Bloquear</button>
                         </div>
                       </div>
                     ))}

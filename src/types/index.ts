@@ -94,6 +94,13 @@ export interface UserProfile {
   createdAt: number;
   updatedAt: number;
   status?: 'active' | 'blocked';
+  // Campos del backend
+  nombre?: string;
+  apellido?: string;
+  telefono?: string;
+  direccion?: string;
+  edad?: number;
+  foto_perfil?: string;
 }
 
 export interface AdminAccount {
