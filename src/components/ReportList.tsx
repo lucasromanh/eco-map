@@ -238,31 +238,6 @@ export const ReportList = ({
             })
           )}
         </div>
-
-        {/* Footer */}
-        {sortedReports.length > 0 && (
-          <div className="sticky bottom-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4">
-            <button
-              onClick={async () => {
-                if (confirm('¿Estás seguro de eliminar TODOS tus reportes?')) {
-                  const user = userService.getProfile();
-                  if (!user) {
-                    alert('⚠️ Debes iniciar sesión');
-                    return;
-                  }
-                  
-                  // Eliminar solo los reportes del usuario actual
-                  for (const report of sortedReports) {
-                    await handleDeleteReport(report.id);
-                  }
-                }
-              }}
-              className="w-full py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-            >
-              Eliminar todos mis reportes
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
