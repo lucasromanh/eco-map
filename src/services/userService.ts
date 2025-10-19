@@ -29,6 +29,8 @@ export const userService = {
     const deviceId = this.getDeviceId();
     const profileWithDevice = { ...profile, deviceId };
     localStorage.setItem(USER_KEY, JSON.stringify(profileWithDevice));
+    // Emitir evento para que otros componentes se actualicen
+    window.dispatchEvent(new CustomEvent('ecomap_profile_updated'));
   },
   updateProfile(updates: Partial<UserProfile>) {
     const cur = this.getProfile();
@@ -40,6 +42,24 @@ export const userService = {
   // Verificar si hay un perfil guardado
   hasProfile(): boolean {
     return this.getProfile() !== null;
+  },
+  // Sincronizar perfil desde backend (AuthUser -> UserProfile)
+  syncFromAuthUser(authUser: { id: string; nombre: string; apellido: string; email: string; telefono?: string; direccion?: string; edad?: number; foto_perfil?: string }) {
+    const existing = this.getProfile();
+    const profile: UserProfile = {
+      id: authUser.id,
+      firstName: authUser.nombre,
+      lastName: authUser.apellido,
+      email: authUser.email,
+      phone: authUser.telefono || existing?.phone || '',
+      address: authUser.direccion || existing?.address || '',
+      age: authUser.edad || existing?.age,
+      avatarUrl: authUser.foto_perfil || existing?.avatarUrl || '',
+      createdAt: existing?.createdAt || Date.now(),
+      updatedAt: Date.now(),
+      status: 'active',
+    };
+    this.saveProfile(profile);
   },
 };
 

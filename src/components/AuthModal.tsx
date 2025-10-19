@@ -55,7 +55,8 @@ export const AuthModal = ({ isOpen, onClose, onLogin }: Props) => {
     setLoading(false);
     if (res.ok) {
       setIsRegister(false);
-      setError('¡Registrado! Ahora inicia sesión con tu email y contraseña.');
+      setForm({ nombre: '', apellido: '', email: '', telefono: '', direccion: '', edad: '', password: '', password2: '' });
+      setError('✅ ¡Registrado! Ahora inicia sesión con tu email y contraseña.');
     } else {
       setError('Error al registrar usuario');
     }

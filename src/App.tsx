@@ -48,6 +48,8 @@ function App() {
   const handleLogin = (u: AuthUser) => {
     setUser(u);
     setShowAuth(false);
+    // Sincronizar perfil local con datos del backend
+    userService.syncFromAuthUser(u);
   };
 
   // Handler para logout (no usado por ahora)
