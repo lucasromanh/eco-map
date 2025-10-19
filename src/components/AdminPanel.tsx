@@ -23,9 +23,14 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
 
   useEffect(() => {
     if (!isOpen) return;
-    // Cargar usuarios y reportes pendientes desde backend
-    adminService.getUsers().then(setAllUsers);
-    adminService.getPendingReports().then(setPendingReports);
+    (async () => {
+      const [users, reports] = await Promise.all([
+        adminService.getUsers(),
+        adminService.getPendingReports()
+      ]);
+      setAllUsers(users);
+      setPendingReports(reports);
+    })();
   }, [isOpen]);
 
   // Aprobar reporte (debe estar fuera del useEffect)
@@ -52,13 +57,29 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   // Fetch addresses for reports
   // Eliminado efecto de direcciones locales
 
-  const onLogin = () => {
-    // Demo local, solo cambia estado
-    setLogged(username);
-    setUsername(''); setPassword('');
+  const onLogin = async () => {
+    const res = await adminService.login(username, password);
+    if (res.ok && res.admin) {
+      setLogged(res.admin.usuario);
+      setUsername('');
+      setPassword('');
+    } else {
+      alert(res.error === 'INVALID_CREDENTIALS'
+        ? 'Usuario o contraseña incorrectos'
+        : 'Error de conexión con el servidor');
+    }
   };
 
-  const onLogout = () => { setLogged(null); };
+  const onLogout = () => {
+    adminService.logout();
+    setLogged(null);
+  };
+
+  // Mantener sesión admin si existe
+  useEffect(() => {
+    const admin = adminService.getCurrentAdmin();
+    if (admin) setLogged(admin.usuario);
+  }, []);
 
   // Eliminada función de reportes locales
 
@@ -117,53 +138,58 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
               </div>
 
               {tab==='reports' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
-                  {pendingReports.map(r => (
-                    <div key={r.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
-                      <div className="flex items-start justify-between mb-2">
-                        <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1 flex-1">{r.titulo || 'Reporte'}</div>
-                        <button onClick={()=>approveReport(r.id)} className="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 flex-shrink-0">Aprobar</button>
-                        <button onClick={()=>deleteReport(r.id)} className="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 flex-shrink-0">Eliminar</button>
-                      </div>
-                      <div className="mb-2">
-                        <img
-                          src={r.imagen && r.imagen !== 'null'
-                            ? (r.imagen.startsWith('http') || r.imagen.includes('/uploads/reportes/')
-                                ? r.imagen
-                                : `/uploads/reportes/${r.imagen}`)
-                            : 'https://via.placeholder.com/120x80?text=Sin+foto'}
-                          className="w-full h-32 object-cover rounded bg-gray-200 dark:bg-gray-700"
-                          alt={r.titulo}
-                        />
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">{r.descripcion}</div>
-                      <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-                        <div className="flex items-center gap-1">
-                          <span>👤</span>
-                          <span className="font-medium">
-                            {(() => {
-                              const user = allUsers.find(u => String(u.id) === String(r.usuario_id));
-                              return user ? `${user.nombre} ${user.apellido}` : r.usuario_id;
-                            })()}
-                          </span>
+                <>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                    Reportes pendientes ({pendingReports.length})
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
+                    {pendingReports.map(r => (
+                      <div key={`report-${r.id}`} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1 flex-1">{r.titulo || 'Reporte'}</div>
+                          <button onClick={()=>approveReport(r.id)} className="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 flex-shrink-0">Aprobar</button>
+                          <button onClick={()=>deleteReport(r.id)} className="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 flex-shrink-0">Eliminar</button>
                         </div>
-                        <div className="flex items-start gap-1">
-                          <span className="flex-shrink-0">📍</span>
-                          <span className="break-all">{r.lat}, {r.lng}</span>
+                        <div className="mb-2">
+                          <img
+                            src={r.imagen && r.imagen !== 'null'
+                              ? (r.imagen.startsWith('http') || r.imagen.includes('/uploads/reportes/')
+                                  ? r.imagen
+                                  : `/uploads/reportes/${r.imagen}`)
+                              : 'https://via.placeholder.com/120x80?text=Sin+foto'}
+                            className="w-full h-32 object-cover rounded bg-gray-200 dark:bg-gray-700"
+                            alt={r.titulo}
+                          />
+                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">{r.descripcion}</div>
+                        <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-1">
+                            <span>👤</span>
+                            <span className="font-medium">
+                              {(() => {
+                                const user = allUsers.find(u => String(u.id) === String(r.usuario_id));
+                                return user ? `${user.nombre} ${user.apellido}` : r.usuario_id;
+                              })()}
+                            </span>
+                          </div>
+                          <div className="flex items-start gap-1">
+                            <span className="flex-shrink-0">📍</span>
+                            <span className="break-all">{r.lat}, {r.lng}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                  {pendingReports.length===0 && <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">No hay reportes pendientes.</div>}
-                </div>
+                    ))}
+                    {pendingReports.length===0 && <div className="col-span-full text-center py-12 text-gray-500 dark:text-gray-400">No hay reportes pendientes.</div>}
+                  </div>
+                </>
               )}
 
               {tab==='users' && (
                 <div className="mt-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Usuarios registrados en el sistema</div>
+                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Usuarios registrados en el sistema ({allUsers.length})</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {allUsers.map(u => (
-                      <div key={u.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
+                      <div key={`user-${u.id}`} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start gap-3 mb-3">
                           <img src={u.foto_perfil && u.foto_perfil !== 'null' ? u.foto_perfil : 'https://via.placeholder.com/48?text=U'} className="w-12 h-12 rounded-full object-cover flex-shrink-0 bg-gray-200 dark:bg-gray-700" />
                           <div className="flex-1 min-w-0">
