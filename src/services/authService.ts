@@ -77,4 +77,17 @@ export const authService = {
   clearSession() {
     localStorage.removeItem('ecomap_user');
   },
+
+  // Subir foto de perfil al servidor
+  async uploadProfileImage(usuarioId: string, file: File) {
+    const fd = new FormData();
+    fd.append('action', 'upload_profile_image');
+    fd.append('usuario_id', String(usuarioId));
+    fd.append('imagen', file);
+
+    const res = await fetch(API_URL, { method: 'POST', body: fd });
+    const data = await res.json().catch(() => ({}));
+    console.log('📸 Upload profile image response:', data);
+    return data; // { ok: true, url: 'https://.../uploads/perfiles/xxx.jpg' }
+  },
 };

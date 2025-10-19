@@ -158,38 +158,50 @@ function App() {
       alert('Error: debes tener un perfil para guardar reportes.');
       return;
     }
-    const withUser: Report = { ...report, userId: profile.id };
-    storageService.saveReport(withUser);
-    setReports([...reports, withUser]);
+    
     let success = false;
+    let serverImageUrl = '';
+    
     if (!isDevelopment) {
       try {
-        const formData = new FormData();
-        formData.append('action', 'add_point');
-        formData.append('usuario_id', String(profile.id));
-        formData.append('lat', String(report.latitude));
-        formData.append('lng', String(report.longitude));
-        formData.append('descripcion', report.description || '');
-        formData.append('categoria', report.category || '');
-        // Imagen
-        let fotoFile: File | null = null;
+        const { reportService } = await import('./services/reportService');
+        
+        // Preparar imagen si existe
+        let imageFile: File | undefined = undefined;
         if (report.imageFile instanceof File) {
-          fotoFile = report.imageFile;
+          imageFile = report.imageFile;
         } else if (report.imageUrl && report.imageUrl.startsWith('data:')) {
-          fotoFile = base64ToFile(report.imageUrl, 'foto.jpg');
+          imageFile = base64ToFile(report.imageUrl, 'foto.jpg') || undefined;
         }
-        if (fotoFile) formData.append('foto', fotoFile);
 
-        const apiBase = `${window.location.origin}/api.php`;
-        const res = await fetch(`${apiBase}?action=add_point`, {
-          method: 'POST',
-          body: formData,
+        // Enviar al backend
+        const result = await reportService.addReport({
+          usuario_id: profile.id,
+          tipo: report.category || 'otro',
+          titulo: report.title,
+          descripcion: report.description || '',
+          lat: report.latitude,
+          lng: report.longitude,
+          imagen: imageFile,
         });
-        success = res.ok;
-      } catch {
+
+        success = result.ok;
+        serverImageUrl = result.file || result.imagen || '';
+        console.log('✅ Reporte guardado en servidor:', result);
+      } catch (error) {
+        console.error('❌ Error al guardar en servidor:', error);
         success = false;
       }
     }
+    
+    // Actualizar reporte con URL del servidor si está disponible
+    const withUser: Report = { 
+      ...report, 
+      userId: profile.id,
+      imageUrl: serverImageUrl || report.imageUrl 
+    };
+    storageService.saveReport(withUser);
+    setReports([...reports, withUser]);
     setTimeout(() => {
       if (isDevelopment) {
         alert(
