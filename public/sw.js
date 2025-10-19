@@ -1,16 +1,17 @@
 /* ============================================================
-   🌎 EcoMap Service Worker - v3
+   🌎 EcoMap Service Worker - v5
    Autor: Lucas Román / SaltaCoders
-   Última actualización: 2025-10-18
+   Última actualización: 2025-10-19
    ------------------------------------------------------------
    Objetivos:
    ✅ Evitar cachear las llamadas al backend PHP
    ✅ Forzar actualización automática de iconos, manifest y UI
    ✅ Mantener cache local para recursos estáticos
    ✅ Mejor compatibilidad con PWA en Android / iOS
+   ✅ Notificar a la app cuando hay una nueva versión
    ============================================================ */
 
-const CACHE_NAME = 'ecomap-v3';
+const CACHE_NAME = 'ecomap-v5';
 const RUNTIME_CACHE = 'ecomap-runtime';
 
 // Archivos base que se precargan
@@ -28,10 +29,26 @@ const PRECACHE_URLS = [
    Descarga y cachea los archivos base de la app.
    ============================================================ */
 self.addEventListener('install', (event) => {
+  console.log('🔄 Service Worker v5 instalando...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE_URLS))
-      .then(() => self.skipWaiting()) // ⚡ Fuerza activación inmediata del SW
+      .then(() => {
+        console.log('✅ Archivos cacheados, notificando clientes...');
+        // Notificar a todos los clientes que hay una nueva versión
+        return self.clients.matchAll({ includeUncontrolled: true });
+      })
+      .then((clients) => {
+        console.log(`📢 Notificando a ${clients.length} clientes`);
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'NEW_VERSION_AVAILABLE',
+            version: CACHE_NAME,
+            timestamp: Date.now()
+          });
+        });
+        return self.skipWaiting(); // ⚡ Fuerza activación inmediata del SW
+      })
   );
 });
 
@@ -41,6 +58,7 @@ self.addEventListener('install', (event) => {
    Elimina versiones antiguas del caché y toma control inmediato.
    ============================================================ */
 self.addEventListener('activate', (event) => {
+  console.log('✅ Service Worker v5 activado');
   const currentCaches = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
     caches.keys()
@@ -48,12 +66,30 @@ self.addEventListener('activate', (event) => {
         Promise.all(
           cacheNames.map((cacheName) => {
             if (!currentCaches.includes(cacheName)) {
+              console.log(`🗑️ Eliminando caché antiguo: ${cacheName}`);
               return caches.delete(cacheName);
             }
           })
         )
       )
-      .then(() => self.clients.claim()) // Control inmediato de todas las pestañas
+      .then(() => {
+        console.log('📡 Tomando control de todos los clientes...');
+        return self.clients.claim();
+      })
+      .then(() => {
+        // Notificar nuevamente después de activar
+        return self.clients.matchAll({ includeUncontrolled: true });
+      })
+      .then((clients) => {
+        console.log(`📢 Post-activación: Notificando a ${clients.length} clientes`);
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'NEW_VERSION_AVAILABLE',
+            version: CACHE_NAME,
+            timestamp: Date.now()
+          });
+        });
+      })
   );
 });
 

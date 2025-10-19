@@ -8,6 +8,7 @@ import { Tutorial } from './components/Tutorial';
 import { InfoBanner } from './components/InfoBanner';
 import { UserProfile } from './components/UserProfile';
 import { AdminPanel } from './components/AdminPanel';
+import { StreetView } from './components/StreetView';
 import { useGeolocation } from './hooks/useGeolocation';
 import { storageService } from './services/storageService';
 import { isRunningStandalone } from './utils/pwa';
@@ -40,6 +41,7 @@ function App() {
   const [showPwaNotice, setShowPwaNotice] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [showStreetView, setShowStreetView] = useState(false);
   // Autenticación
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(() => authService.getSession());
@@ -371,6 +373,7 @@ function App() {
         isWeatherOpen={showWeatherPanel}
         onToggleEffects={() => setEffectsEnabled((v) => !v)}
         effectsEnabled={effectsEnabled}
+        onToggleStreetView={() => setShowStreetView(true)}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
         isDark={isDark}
@@ -443,6 +446,13 @@ function App() {
           }
         })();
       }} />
+
+      {/* StreetView */}
+      <StreetView
+        location={location}
+        isOpen={showStreetView}
+        onClose={() => setShowStreetView(false)}
+      />
 
       {/* Tutorial, banners e info */}
       {showTutorial && <Tutorial onComplete={() => setShowTutorial(false)} />}

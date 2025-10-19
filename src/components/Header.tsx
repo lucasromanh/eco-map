@@ -17,9 +17,10 @@ interface HeaderProps {
   isDark?: boolean;
   toggleTheme?: () => void;
   reportCount?: number;
+  onToggleStreetView?: () => void;
 }
 
-export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme, reportCount }: HeaderProps) => {
+export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme, reportCount, onToggleStreetView }: HeaderProps) => {
   // Usar useTheme para mostrar el estado actual del tema
   const theme = useTheme();
   // Fallbacks: si no pasan isDark/toggleTheme por props, usamos el hook
@@ -29,6 +30,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
   const [storedCount, setStoredCount] = useState<number>(() => storageService.getReports().length);
   const [internalMenuOpen, setInternalMenuOpen] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [updateAvailable, setUpdateAvailable] = useState(false);
   const isControlled = typeof menuOpen === 'boolean' && typeof setMenuOpen === 'function';
   const actualMenuOpen = isControlled ? menuOpen : internalMenuOpen;
   const setActualMenuOpen = isControlled ? setMenuOpen : setInternalMenuOpen;
@@ -36,6 +38,58 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
 
     // Estado del perfil del usuario
     const [userProfile, setUserProfile] = useState(() => userService.getProfile());
+
+    // Escuchar actualizaciones del Service Worker
+    useEffect(() => {
+      if ('serviceWorker' in navigator) {
+        // Listener para mensajes del Service Worker
+        const handleSWMessage = (event: MessageEvent) => {
+          console.log('📨 Mensaje del Service Worker:', event.data);
+          if (event.data && event.data.type === 'NEW_VERSION_AVAILABLE') {
+            console.log('🔔 Nueva versión disponible:', event.data.version);
+            setUpdateAvailable(true);
+            // Guardar en localStorage para persistir entre recargas
+            localStorage.setItem('ecomap_update_available', 'true');
+          }
+        };
+
+        navigator.serviceWorker.addEventListener('message', handleSWMessage);
+
+        // Verificar si ya hay una actualización pendiente al cargar
+        const updatePending = localStorage.getItem('ecomap_update_available');
+        if (updatePending === 'true') {
+          console.log('🔔 Actualización pendiente detectada al cargar');
+          setUpdateAvailable(true);
+        }
+
+        // Verificar manualmente si hay un SW esperando
+        navigator.serviceWorker.ready.then((registration) => {
+          if (registration.waiting) {
+            console.log('⏳ Service Worker esperando, notificando...');
+            setUpdateAvailable(true);
+            localStorage.setItem('ecomap_update_available', 'true');
+          }
+
+          // Listener para detectar cuando hay un SW nuevo esperando
+          registration.addEventListener('updatefound', () => {
+            const newWorker = registration.installing;
+            if (newWorker) {
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('🆕 Nuevo Service Worker instalado y esperando');
+                  setUpdateAvailable(true);
+                  localStorage.setItem('ecomap_update_available', 'true');
+                }
+              });
+            }
+          });
+        });
+
+        return () => {
+          navigator.serviceWorker.removeEventListener('message', handleSWMessage);
+        };
+      }
+    }, []);
 
     // Actualizar perfil cuando cambia (desde UserProfile modal)
     useEffect(() => {
@@ -75,6 +129,28 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
 
   return (
   <header className="bg-white dark:bg-gray-800 shadow-md border-b border-gray-200 dark:border-gray-700 z-[1000] relative">
+      {/* Notificación de actualización disponible - FUERA del contenedor para que sea 100% ancho */}
+      {updateAvailable && (
+        <div className="bg-green-600 text-white py-3 px-4 flex items-center justify-between gap-3 shadow-lg">
+          <div className="flex items-center gap-2 flex-1">
+            <span className="text-xl">🔔</span>
+            <div className="flex-1">
+              <div className="text-sm font-bold">¡Nueva versión disponible!</div>
+              <div className="text-xs opacity-90">Actualiza para ver los nuevos iconos</div>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              localStorage.removeItem('ecomap_update_available');
+              window.location.reload();
+            }}
+            className="px-4 py-2 bg-white text-green-600 rounded-lg text-sm font-bold hover:bg-gray-100 transition-colors shadow-md whitespace-nowrap"
+          >
+            Actualizar
+          </button>
+        </div>
+      )}
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
             {/* Logo, título y perfil */}
@@ -157,6 +233,16 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
                       <div className="text-xs text-gray-500">Listado de reportes guardados</div>
                     </div>
                   </button>
+
+                  {onToggleStreetView && (
+                    <button onClick={() => { onToggleStreetView(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
+                      <span>📸</span>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">Street View</div>
+                        <div className="text-xs text-gray-500">Ver imágenes de la calle</div>
+                      </div>
+                    </button>
+                  )}
 
                   <button onClick={() => { onAddReport(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                     <span>➕</span>
