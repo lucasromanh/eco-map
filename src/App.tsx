@@ -9,6 +9,7 @@ import { InfoBanner } from './components/InfoBanner';
 import { UserProfile } from './components/UserProfile';
 import { AdminPanel } from './components/AdminPanel';
 import { StreetView } from './components/StreetView';
+import { WeatherForecast } from './components/WeatherForecast';
 import { useGeolocation } from './hooks/useGeolocation';
 import { storageService } from './services/storageService';
 import { isRunningStandalone } from './utils/pwa';
@@ -42,6 +43,7 @@ function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showAdmin, setShowAdmin] = useState(false);
   const [showStreetView, setShowStreetView] = useState(false);
+  const [showForecast, setShowForecast] = useState(false);
   // Autenticación
   const [showAuth, setShowAuth] = useState(false);
   const [user, setUser] = useState<AuthUser | null>(() => authService.getSession());
@@ -394,12 +396,23 @@ function App() {
       {/* Botón flotante de Street View */}
       <button
         onClick={() => setShowStreetView(true)}
-        className="fixed bottom-6 right-6 z-[1000] bg-primary-600 hover:bg-primary-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
+        className="fixed bottom-6 left-6 z-[1000] bg-primary-600 hover:bg-primary-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
         title="Ver Street View"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      </button>
+
+      {/* Botón flotante de Pronóstico */}
+      <button
+        onClick={() => setShowForecast(true)}
+        className="fixed bottom-6 right-6 z-[1000] bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 hover:scale-110"
+        title="Pronóstico Extendido"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
         </svg>
       </button>
 
@@ -463,6 +476,12 @@ function App() {
         location={location}
         isOpen={showStreetView}
         onClose={() => setShowStreetView(false)}
+      />
+
+      {/* Pronóstico meteorológico */}
+      <WeatherForecast
+        isOpen={showForecast}
+        onClose={() => setShowForecast(false)}
       />
 
       {/* Tutorial, banners e info */}

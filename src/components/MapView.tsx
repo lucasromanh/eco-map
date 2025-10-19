@@ -233,11 +233,22 @@ export const MapView = ({
         <MapController center={center} />
         <MapClickHandler onMapClick={onMapClick} />
         
-        <TileLayer
-          key={isDark ? 'dark' : 'light'}
-          url={isDark ? TILE_LAYERS.dark.url : TILE_LAYERS.openStreetMap.url}
-          attribution={isDark ? TILE_LAYERS.dark.attribution : TILE_LAYERS.openStreetMap.attribution}
-        />
+        {/* Mostrar capa satelital o mapa normal según el estado */}
+        {showSatellite ? (
+          <TileLayer
+            key="satellite"
+            url={TILE_LAYERS.satellite.url}
+            attribution={TILE_LAYERS.satellite.attribution}
+            maxZoom={19}
+          />
+        ) : (
+          <TileLayer
+            key={isDark ? 'dark' : 'light'}
+            url={isDark ? TILE_LAYERS.dark.url : TILE_LAYERS.openStreetMap.url}
+            attribution={isDark ? TILE_LAYERS.dark.attribution : TILE_LAYERS.openStreetMap.attribution}
+            maxZoom={19}
+          />
+        )}
 
         {/* Marcador de ubicación del usuario */}
         {userLocation && (
