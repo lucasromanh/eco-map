@@ -219,9 +219,15 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                             src={getImageUrl(r.imagen)}
                             className="w-full h-32 object-cover rounded bg-gray-200 dark:bg-gray-700"
                             alt={r.titulo}
+                            onLoad={() => {
+                              console.log('✅ Imagen cargada:', r.imagen, '→', getImageUrl(r.imagen));
+                            }}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              console.log('❌ Error cargando imagen:', target.src);
+                              console.log('❌ Error cargando imagen');
+                              console.log('   📎 URL original BD:', r.imagen);
+                              console.log('   🔗 URL generada:', getImageUrl(r.imagen));
+                              console.log('   🌐 URL intentada:', target.src);
                               
                               // Intentar con el dominio alternativo como fallback
                               if (!target.dataset.fallbackAttempted && r.imagen) {
@@ -234,21 +240,21 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                                 if (target.src.includes('srv882-files.hstgr.io')) {
                                   const path = target.src.replace(newHost, '');
                                   target.src = `${oldHost}${path}`;
-                                  console.log('🔄 Intentando con servidor viejo:', target.src);
+                                  console.log('🔄 Fallback: intentando servidor viejo:', target.src);
                                 }
                                 // Si falló el servidor viejo, probar con el nuevo
                                 else if (target.src.includes('ecomap.saltacoders.com')) {
                                   const path = target.src.replace(oldHost, '');
                                   target.src = `${newHost}${path}`;
-                                  console.log('🔄 Intentando con servidor nuevo:', target.src);
+                                  console.log('🔄 Fallback: intentando servidor nuevo:', target.src);
                                 }
                                 // Si es relativa, probar ambos
                                 else if (r.imagen.startsWith('/uploads/')) {
                                   target.src = `${oldHost}${r.imagen}`;
-                                  console.log('🔄 Intentando con ruta relativa:', target.src);
+                                  console.log('🔄 Fallback: ruta relativa con servidor viejo:', target.src);
                                 } else if (!r.imagen.startsWith('http')) {
                                   target.src = `${oldHost}/uploads/reportes/${r.imagen}`;
-                                  console.log('🔄 Intentando con nombre de archivo:', target.src);
+                                  console.log('🔄 Fallback: nombre archivo con servidor viejo:', target.src);
                                 } else {
                                   target.src = 'https://via.placeholder.com/120x80?text=Sin+foto';
                                 }
