@@ -17,10 +17,9 @@ interface HeaderProps {
   isDark?: boolean;
   toggleTheme?: () => void;
   reportCount?: number;
-  onToggleStreetView?: () => void;
 }
 
-export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme, reportCount, onToggleStreetView }: HeaderProps) => {
+export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, onToggleWeather, isWeatherOpen, onToggleEffects, effectsEnabled, menuOpen, setMenuOpen, isDark, toggleTheme, reportCount }: HeaderProps) => {
   // Usar useTheme para mostrar el estado actual del tema
   const theme = useTheme();
   // Fallbacks: si no pasan isDark/toggleTheme por props, usamos el hook
@@ -233,16 +232,6 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
                       <div className="text-xs text-gray-500">Listado de reportes guardados</div>
                     </div>
                   </button>
-
-                  {onToggleStreetView && (
-                    <button onClick={() => { onToggleStreetView(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
-                      <span>📸</span>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">Street View</div>
-                        <div className="text-xs text-gray-500">Ver imágenes de la calle</div>
-                      </div>
-                    </button>
-                  )}
 
                   <button onClick={() => { onAddReport(); setActualMenuOpen(false); }} className="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-left">
                     <span>➕</span>
