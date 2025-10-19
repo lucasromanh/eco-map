@@ -146,7 +146,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
             {currentStep > 0 && (
               <button
                 onClick={handlePrevious}
-                className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="flex-1 py-3 px-4 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors shadow-md"
               >
                 ← Anterior
               </button>
@@ -156,14 +156,13 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
               <>
                 <button
                   onClick={handleSkip}
-                  className="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-400 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-md"
                 >
                   Saltar
                 </button>
                 <button
                   onClick={handleNext}
-                  className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-gray-800 border-2 border-primary-700 dark:border-primary-400"
-                  style={{ boxShadow: '0 0 0 2px #fff' }}
+                  className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-lg"
                 >
                   Siguiente →
                 </button>
@@ -171,7 +170,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
             ) : (
               <button
                 onClick={handleComplete}
-                className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 transition-colors shadow-lg"
+                className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-semibold hover:bg-primary-700 transition-colors shadow-lg"
               >
                 ¡Comenzar! 🚀
               </button>

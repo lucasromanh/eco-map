@@ -146,7 +146,7 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             </div>
           </div>
           <div className="flex justify-end gap-3 mt-6">
-            <button onClick={save} disabled={saving} className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg disabled:opacity-60">{saving ? 'Guardando...' : 'Guardar'}</button>
+            <button onClick={save} disabled={saving} className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg disabled:opacity-60 shadow-lg">{saving ? 'Guardando...' : 'Guardar'}</button>
           </div>
         </div>
       </div>
