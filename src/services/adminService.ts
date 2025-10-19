@@ -166,4 +166,16 @@ export const adminService = {
       total: [...pending, ...approved],
     };
   },
+
+  /** 🔌 Verificar conexión con la base de datos */
+  async pingDatabase(): Promise<APIResponse> {
+    try {
+      const res = await fetch(`${API_URL}?action=ping_db`);
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('Error al hacer ping a la BD:', error);
+      return { ok: false, error: 'NETWORK_ERROR' };
+    }
+  },
 };

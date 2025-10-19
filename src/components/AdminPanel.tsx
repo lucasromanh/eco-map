@@ -21,6 +21,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   const [pendingReports, setPendingReports] = useState<any[]>([]);
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   // Eliminados estados y variables locales innecesarios
 
   useEffect(() => {
@@ -85,6 +86,35 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
     setLogged(null);
   };
 
+  const refreshData = async () => {
+    if (!logged) return;
+    setRefreshing(true);
+    try {
+      // Ping a la base de datos
+      const pingRes = await adminService.pingDatabase();
+      if (!pingRes.ok) {
+        alert('⚠️ Error de conexión con la base de datos');
+        setRefreshing(false);
+        return;
+      }
+
+      // Recargar datos
+      const [users, reports] = await Promise.all([
+        adminService.getUsers(),
+        adminService.getPendingReports()
+      ]);
+      setAllUsers(users);
+      setPendingReports(reports);
+      
+      alert('✅ Datos actualizados correctamente');
+    } catch (error) {
+      console.error('Error al refrescar datos:', error);
+      alert('❌ Error al refrescar datos');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   // Mantener sesión admin si existe
   useEffect(() => {
     const admin = adminService.getCurrentAdmin();
@@ -137,7 +167,6 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
               >
                 {loading ? 'Verificando...' : 'Ingresar'}
               </button>
-              <div className="mt-3 text-xs text-center text-gray-600 dark:text-gray-400">Demo: lucasromanh / catalinaromanteamo</div>
             </div>
           ) : (
             <div>
@@ -169,9 +198,19 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                     👥 Usuarios
                   </button>
                 </div>
-                <button onClick={onLogout} className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors shadow-md hover:shadow-lg">
-                  🚪 Cerrar sesión
-                </button>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={refreshData} 
+                    disabled={refreshing}
+                    className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Reconectar con la base de datos y actualizar"
+                  >
+                    {refreshing ? '🔄 Actualizando...' : '🔄 Refrescar'}
+                  </button>
+                  <button onClick={onLogout} className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors shadow-md hover:shadow-lg">
+                    🚪 Cerrar sesión
+                  </button>
+                </div>
               </div>
 
               {tab==='reports' && (
