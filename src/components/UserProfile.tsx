@@ -170,13 +170,13 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
                 </button>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
                   ref={fileRef}
                   onChange={onAvatarChange}
                   className="hidden"
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  Max 5MB
+                  JPG, PNG o WebP · Max 5MB
                 </p>
               </div>
             </div>

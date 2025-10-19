@@ -257,7 +257,7 @@ export const AddReportModal = ({
               <input
                 ref={galleryInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 onChange={handleImageChange}
                 className="hidden"
               />
@@ -265,7 +265,7 @@ export const AddReportModal = ({
               <input
                 ref={cameraInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 capture="environment"
                 onChange={handleImageChange}
                 className="hidden"

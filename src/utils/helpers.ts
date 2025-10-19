@@ -47,6 +47,7 @@ export const fileToBase64 = (file: File): Promise<string> => {
 
 /**
  * Comprime una imagen
+ * Soporta: jpg, jpeg, png, webp
  */
 export const compressImage = (
   file: File,
@@ -54,6 +55,13 @@ export const compressImage = (
   quality: number = 0.8
 ): Promise<File> => {
   return new Promise((resolve, reject) => {
+    // Validar tipo de archivo
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type.toLowerCase())) {
+      reject(new Error('Formato de imagen no válido. Use: JPG, PNG o WebP'));
+      return;
+    }
+
     const reader = new FileReader();
     reader.readAsDataURL(file);
     
@@ -82,6 +90,18 @@ export const compressImage = (
         
         ctx.drawImage(img, 0, 0, width, height);
         
+        // Determinar el tipo de salida (preservar WebP, convertir otros a JPEG)
+        let outputType = 'image/jpeg';
+        let outputQuality = quality;
+        
+        if (file.type === 'image/webp') {
+          outputType = 'image/webp';
+        } else if (file.type === 'image/png') {
+          // PNG con transparencia se mantiene como PNG
+          outputType = 'image/png';
+          outputQuality = 1; // PNG no usa quality de la misma forma
+        }
+        
         canvas.toBlob(
           (blob) => {
             if (!blob) {
@@ -89,13 +109,13 @@ export const compressImage = (
               return;
             }
             const compressedFile = new File([blob], file.name, {
-              type: 'image/jpeg',
+              type: outputType,
               lastModified: Date.now(),
             });
             resolve(compressedFile);
           },
-          'image/jpeg',
-          quality
+          outputType,
+          outputQuality
         );
       };
       
