@@ -5,6 +5,26 @@ interface Props { isOpen: boolean; onClose: () => void; }
 
 type Tab = 'reports' | 'users' | 'admins';
 
+// Helper para normalizar URLs de imágenes
+const getImageUrl = (imageUrl: string | null | undefined): string => {
+  if (!imageUrl || imageUrl === 'null') {
+    return 'https://via.placeholder.com/120x80?text=Sin+foto';
+  }
+  
+  // Si ya es una URL completa, usarla tal cual
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // Si empieza con /uploads/, construir URL completa
+  if (imageUrl.startsWith('/uploads/')) {
+    return `https://ecomap.saltacoders.com${imageUrl}`;
+  }
+  
+  // Si solo es el nombre del archivo, construir URL completa
+  return `https://ecomap.saltacoders.com/uploads/reportes/${imageUrl}`;
+};
+
 // Acciones demo para administración, disponibles para futuras integraciones
 export const adminDemoActions = {
   addAdmin: () => alert('Función no disponible en demo'),
@@ -163,13 +183,13 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                         </div>
                         <div className="mb-2">
                           <img
-                            src={r.imagen && r.imagen !== 'null'
-                              ? (r.imagen.startsWith('http') || r.imagen.includes('/uploads/reportes/')
-                                  ? r.imagen
-                                  : `/uploads/reportes/${r.imagen}`)
-                              : 'https://via.placeholder.com/120x80?text=Sin+foto'}
+                            src={getImageUrl(r.imagen)}
                             className="w-full h-32 object-cover rounded bg-gray-200 dark:bg-gray-700"
                             alt={r.titulo}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = 'https://via.placeholder.com/120x80?text=Sin+foto';
+                            }}
                           />
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">{r.descripcion}</div>

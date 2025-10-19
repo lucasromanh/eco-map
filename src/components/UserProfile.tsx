@@ -40,8 +40,35 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
     }
     setSaving(true);
     try {
+      // 1. Guardar en localStorage
       userService.saveProfile({ ...profile, updatedAt: Date.now() });
-      // Emitir evento para actualizar el Header y otros componentes
+      
+      // 2. Sincronizar con el backend si tenemos ID
+      if (profile.id) {
+        console.log('🔄 Sincronizando perfil con el backend...');
+        const { authService } = await import('../services/authService');
+        const updateResult = await authService.updateProfile({
+          id: profile.id,
+          nombre: profile.firstName,
+          apellido: profile.lastName,
+          email: profile.email,
+          telefono: profile.phone,
+          direccion: profile.address,
+          edad: profile.age,
+        });
+        
+        if (updateResult.ok) {
+          console.log('✅ Perfil sincronizado con el servidor');
+          // Si el servidor devolvió datos actualizados, actualizar la sesión
+          if (updateResult.user) {
+            authService.saveSession(updateResult.user);
+          }
+        } else {
+          console.warn('⚠️ No se pudo sincronizar con el servidor');
+        }
+      }
+      
+      // 3. Emitir evento para actualizar el Header y otros componentes
       window.dispatchEvent(new CustomEvent('ecomap_profile_updated'));
       // También disparar evento storage para asegurar actualización
       window.dispatchEvent(new StorageEvent('storage', { 
@@ -50,6 +77,9 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
       }));
       alert('✅ Perfil guardado correctamente');
       onClose();
+    } catch (error) {
+      console.error('❌ Error al guardar perfil:', error);
+      alert('Error al guardar el perfil');
     } finally { setSaving(false); }
   };
 

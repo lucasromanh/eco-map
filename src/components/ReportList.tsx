@@ -3,12 +3,38 @@ import { getCategoryInfo } from '../utils/constants';
 import { formatDate, truncateText, formatCoordinates } from '../utils/helpers';
 import { useState } from 'react';
 
+// Helper para normalizar URLs de imágenes
+const getImageUrl = (imageUrl: string | undefined): string => {
+  if (!imageUrl) {
+    return '';
+  }
+  
+  // Si ya es una URL completa, usarla tal cual
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // Si es base64, devolverla tal cual
+  if (imageUrl.startsWith('data:')) {
+    return imageUrl;
+  }
+  
+  // Si empieza con /uploads/, construir URL completa
+  if (imageUrl.startsWith('/uploads/')) {
+    return `https://ecomap.saltacoders.com${imageUrl}`;
+  }
+  
+  // Si solo es el nombre del archivo, construir URL completa
+  return `https://ecomap.saltacoders.com/uploads/reportes/${imageUrl}`;
+};
+
 interface ReportListProps {
   reports: Report[];
   isOpen: boolean;
   onClose: () => void;
   onSelectReport: (report: Report) => void;
   onDeleteReport: (id: string) => void;
+  onRefresh?: () => void;
 }
 
 export const ReportList = ({
@@ -17,6 +43,7 @@ export const ReportList = ({
   onClose,
   onSelectReport,
   onDeleteReport,
+  onRefresh,
 }: ReportListProps) => {
   const [loading, setLoading] = useState(false);
   if (!isOpen) return null;
@@ -47,14 +74,15 @@ export const ReportList = ({
             <div className="flex gap-2 items-center">
               <button
                 onClick={async () => {
-                  setLoading(true);
-                  const { reportService } = await import('../services/reportService');
-                  await reportService.getApprovedPoints();
-                  window.location.reload();
+                  if (onRefresh) {
+                    setLoading(true);
+                    await onRefresh();
+                    setLoading(false);
+                  }
                 }}
+                disabled={loading || !onRefresh}
                 className={`px-2 py-1 bg-primary-600 hover:bg-primary-700 text-white rounded text-sm flex items-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                 title="Refrescar reportes"
-                disabled={loading}
               >
                 {loading && (
                   <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24">
@@ -104,11 +132,13 @@ export const ReportList = ({
                   {/* Imagen si existe */}
                   {report.imageUrl && (
                     <img
-                      src={report.imageUrl.startsWith('http') || report.imageUrl.includes('/uploads/reportes/')
-                        ? report.imageUrl
-                        : `/uploads/reportes/${report.imageUrl}`}
+                      src={getImageUrl(report.imageUrl)}
                       alt={report.title}
                       className="w-full h-32 object-cover rounded-lg mb-3"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                      }}
                     />
                   )}
 

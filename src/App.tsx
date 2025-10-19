@@ -181,6 +181,58 @@ function App() {
     return !!(p && p.firstName?.trim() && p.lastName?.trim() && p.email?.trim());
   };
 
+  // Refrescar reportes desde el servidor
+  const handleRefreshReports = async () => {
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isDevelopment) {
+      // En desarrollo, solo recargar reportes locales
+      const localReports = storageService.getReports();
+      setReports(localReports);
+      return;
+    }
+
+    try {
+      console.log('🔄 Refrescando reportes...');
+      const localReports = storageService.getReports();
+      const { reportService } = await import('./services/reportService');
+      const response = await reportService.getApprovedPoints();
+      
+      const points = Array.isArray(response)
+        ? response
+        : Array.isArray(response.points)
+          ? response.points
+          : [];
+
+      if (points.length > 0) {
+        console.log('✅ Reportes actualizados:', points.length);
+        const serverReports: Report[] = points.map((p: Record<string, any>) => ({
+          id: String(p.id),
+          title: p.titulo || 'Sin título',
+          description: p.descripcion || '',
+          category: p.tipo || 'otro',
+          latitude: parseFloat(p.lat),
+          longitude: parseFloat(p.lng),
+          imageUrl: p.imagen || undefined,
+          userId: String(p.usuario_id),
+          timestamp: p.fecha_creacion ? new Date(p.fecha_creacion).getTime() : Date.now(),
+          status: 'approved' as const,
+        }));
+        
+        const allReports = [...localReports];
+        serverReports.forEach((serverReport: Report) => {
+          if (!allReports.some(r => r.id === serverReport.id)) {
+            allReports.push(serverReport);
+          }
+        });
+        setReports(allReports);
+      } else {
+        setReports(localReports);
+      }
+    } catch (error) {
+      console.error('❌ Error al refrescar reportes:', error);
+    }
+  };
+
   const base64ToFile = (base64: string, filename: string, contentType = 'image/jpeg'): File | null => {
     try {
       const arr = base64.split(',');
@@ -352,6 +404,7 @@ function App() {
         onClose={() => setIsListOpen(false)}
         onSelectReport={(r) => setSelectedReport(r)}
         onDeleteReport={handleDeleteReport}
+        onRefresh={handleRefreshReports}
       />
 
       <UserProfile isOpen={showProfile} onClose={() => setShowProfile(false)} />

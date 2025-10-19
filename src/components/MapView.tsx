@@ -6,6 +6,31 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM, TILE_LAYERS, getCategoryInfo } from '../u
 import { formatCoordinates, formatDate } from '../utils/helpers';
 import { environmentalService } from '../services/environmentalService';
 
+// Helper para normalizar URLs de imágenes
+const getImageUrl = (imageUrl: string | undefined): string => {
+  if (!imageUrl) {
+    return '';
+  }
+  
+  // Si ya es una URL completa, usarla tal cual
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // Si es base64, devolverla tal cual
+  if (imageUrl.startsWith('data:')) {
+    return imageUrl;
+  }
+  
+  // Si empieza con /uploads/, construir URL completa
+  if (imageUrl.startsWith('/uploads/')) {
+    return `https://ecomap.saltacoders.com${imageUrl}`;
+  }
+  
+  // Si solo es el nombre del archivo, construir URL completa
+  return `https://ecomap.saltacoders.com/uploads/reportes/${imageUrl}`;
+};
+
 // Fix para los iconos de Leaflet
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -308,9 +333,13 @@ export const MapView = ({
                 </p>
                 {report.imageUrl && (
                   <img
-                    src={report.imageUrl}
+                    src={getImageUrl(report.imageUrl)}
                     alt={report.title}
                     className="w-full h-32 object-cover rounded-lg"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
                   />
                 )}
                 <p className="text-xs text-gray-500 mt-2">

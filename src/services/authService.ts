@@ -90,4 +90,24 @@ export const authService = {
     console.log('📸 Upload profile image response:', data);
     return data; // { ok: true, url: 'https://.../uploads/perfiles/xxx.jpg' }
   },
+
+  // Actualizar perfil completo en el servidor
+  async updateProfile(user: {
+    id: string;
+    nombre: string;
+    apellido: string;
+    email: string;
+    telefono?: string;
+    direccion?: string;
+    edad?: number;
+  }) {
+    const res = await fetch(`${API_URL}?action=update_user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(user),
+    });
+    const data = await res.json().catch(() => ({}));
+    console.log('💾 Update profile response:', data);
+    return data; // { ok: true, user: {...} }
+  },
 };
