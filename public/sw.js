@@ -1,5 +1,5 @@
 /* ============================================================
-   🌎 EcoMap Service Worker - v7
+   🌎 EcoMap Service Worker - v8
    Autor: Lucas Román / SaltaCoders
    Última actualización: 2025-10-19
    ------------------------------------------------------------
@@ -7,21 +7,22 @@
    ✅ Evitar cachear las llamadas al backend PHP
    ✅ Forzar actualización automática de iconos, manifest y UI
    ✅ Mantener cache local para recursos estáticos
-   ✅ Mejor compatibilidad con PWA en Android / iOS
+   ✅ Mejor compatibilidad con PWA en Android / iOS (Safari fix)
    ✅ Notificar a la app cuando hay una nueva versión
    ✅ Soportar imágenes de ambos servidores (nuevo y viejo)
+   ✅ Safari iOS: cache: 'no-store' para peticiones dinámicas
    ============================================================ */
 
-const CACHE_NAME = 'ecomap-v7';
-const RUNTIME_CACHE = 'ecomap-runtime-v7';
+const CACHE_NAME = 'ecomap-v8';
+const RUNTIME_CACHE = 'ecomap-runtime-v8';
 
 // Archivos base que se precargan
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/manifest.json?v=7',
-  '/icon-192.svg?v=7',
-  '/icon-512.svg?v=7',
+  '/manifest.json?v=8',
+  '/icon-192.svg?v=8',
+  '/icon-512.svg?v=8',
 ];
 
 /* ============================================================
@@ -30,7 +31,7 @@ const PRECACHE_URLS = [
    Descarga y cachea los archivos base de la app.
    ============================================================ */
 self.addEventListener('install', (event) => {
-  console.log('🔄 Service Worker v7 instalando...');
+  console.log('🔄 Service Worker v8 instalando...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE_URLS))
@@ -59,7 +60,7 @@ self.addEventListener('install', (event) => {
    Elimina versiones antiguas del caché y toma control inmediato.
    ============================================================ */
 self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker v7 activado');
+  console.log('✅ Service Worker v8 activado');
   const currentCaches = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
     caches.keys()
@@ -104,9 +105,15 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // 🚫 No cachear ninguna solicitud al backend PHP
-  if (url.pathname.endsWith('.php')) {
-    event.respondWith(fetch(event.request));
+  // 🚫 Evitar cachear cualquier llamada al backend PHP o con parámetros "action="
+  if (url.pathname.endsWith('.php') || url.searchParams.has('action')) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .then(response => response)
+        .catch(() => new Response(JSON.stringify({ ok: false, error: 'offline' }), {
+          headers: { 'Content-Type': 'application/json' }
+        }))
+    );
     return;
   }
 
