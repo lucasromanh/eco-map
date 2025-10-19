@@ -1,5 +1,5 @@
 /* ============================================================
-   🌎 EcoMap Service Worker - v5
+   🌎 EcoMap Service Worker - v6
    Autor: Lucas Román / SaltaCoders
    Última actualización: 2025-10-19
    ------------------------------------------------------------
@@ -11,16 +11,16 @@
    ✅ Notificar a la app cuando hay una nueva versión
    ============================================================ */
 
-const CACHE_NAME = 'ecomap-v5';
+const CACHE_NAME = 'ecomap-v6';
 const RUNTIME_CACHE = 'ecomap-runtime';
 
 // Archivos base que se precargan
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/icon-192.svg',
-  '/icon-512.svg',
+  '/manifest.json?v=6',
+  '/icon-192.svg?v=6',
+  '/icon-512.svg?v=6',
 ];
 
 /* ============================================================
