@@ -2,32 +2,32 @@
   "name": "EcoMap - Mapa Ambiental Colaborativo",
   "short_name": "EcoMap",
   "description": "Aplicación colaborativa para visualizar y reportar información ambiental en tu zona",
-  "start_url": "/?pwa=v6",
+  "start_url": "/?pwa=v7",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#22c55e",
   "orientation": "portrait-primary",
   "icons": [
     {
-  "src": "/icon-192.svg?v=6",
+  "src": "/icon-192.svg?v=7",
   "type": "image/svg+xml",
   "sizes": "192x192",
   "purpose": "any"
     },
     {
-  "src": "/icon-512.svg?v=6",
+  "src": "/icon-512.svg?v=7",
   "type": "image/svg+xml",
   "sizes": "512x512",
   "purpose": "any"
     },
     {
-  "src": "/icon-192.svg?v=6",
+  "src": "/icon-192.svg?v=7",
   "type": "image/svg+xml",
   "sizes": "192x192",
   "purpose": "maskable"
     },
     {
-  "src": "/icon-512.svg?v=6",
+  "src": "/icon-512.svg?v=7",
   "type": "image/svg+xml",
   "sizes": "512x512",
   "purpose": "maskable"
@@ -44,14 +44,14 @@
       "short_name": "Reportar",
       "description": "Crear un nuevo reporte ambiental",
       "url": "/?action=add",
-      "icons": [{ "src": "/icon-192.svg?v=6", "type": "image/svg+xml", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.svg?v=7", "type": "image/svg+xml", "sizes": "192x192" }]
     },
     {
       "name": "Ver Reportes",
       "short_name": "Reportes",
       "description": "Ver todos los reportes",
       "url": "/?action=list",
-      "icons": [{ "src": "/icon-192.svg?v=6", "type": "image/svg+xml", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.svg?v=7", "type": "image/svg+xml", "sizes": "192x192" }]
     }
   ]
 }

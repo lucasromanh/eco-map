@@ -167,13 +167,32 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                   Sesión: <span className="font-semibold text-gray-700 dark:text-gray-200">{logged?.nombre || logged?.usuario}</span> ({logged?.rol})
                 </div>
               </div>
-              <div className="flex items-center justify-between flex-wrap gap-2">
-                <div className="flex gap-2">
-                  <button onClick={()=>setTab('reports')} className={`px-3 py-1.5 text-sm rounded ${tab==='reports'?'bg-primary-600 text-white':'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>Reportes</button>
-                  <button onClick={()=>setTab('users')} className={`px-3 py-1.5 text-sm rounded ${tab==='users'?'bg-primary-600 text-white':'bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200'}`}>Usuarios</button>
-                  {/* Eliminada pestaña de admins */}
+              <div className="flex items-center justify-between flex-wrap gap-2 mb-6">
+                <div className="flex gap-3 p-1 bg-gray-100 dark:bg-gray-900 rounded-lg">
+                  <button 
+                    onClick={()=>setTab('reports')} 
+                    className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                      tab==='reports'
+                        ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105' 
+                        : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    📋 Reportes
+                  </button>
+                  <button 
+                    onClick={()=>setTab('users')} 
+                    className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
+                      tab==='users'
+                        ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg scale-105' 
+                        : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    👥 Usuarios
+                  </button>
                 </div>
-                <button onClick={onLogout} className="px-3 py-1.5 text-sm rounded bg-red-600 hover:bg-red-700 text-white transition-colors">Cerrar sesión</button>
+                <button onClick={onLogout} className="px-4 py-2.5 text-sm font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors shadow-md hover:shadow-lg">
+                  🚪 Cerrar sesión
+                </button>
               </div>
 
               {tab==='reports' && (

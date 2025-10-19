@@ -1,5 +1,5 @@
 /* ============================================================
-   🌎 EcoMap Service Worker - v6
+   🌎 EcoMap Service Worker - v7
    Autor: Lucas Román / SaltaCoders
    Última actualización: 2025-10-19
    ------------------------------------------------------------
@@ -9,18 +9,19 @@
    ✅ Mantener cache local para recursos estáticos
    ✅ Mejor compatibilidad con PWA en Android / iOS
    ✅ Notificar a la app cuando hay una nueva versión
+   ✅ Soportar imágenes de ambos servidores (nuevo y viejo)
    ============================================================ */
 
-const CACHE_NAME = 'ecomap-v6';
-const RUNTIME_CACHE = 'ecomap-runtime';
+const CACHE_NAME = 'ecomap-v7';
+const RUNTIME_CACHE = 'ecomap-runtime-v7';
 
 // Archivos base que se precargan
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/manifest.json?v=6',
-  '/icon-192.svg?v=6',
-  '/icon-512.svg?v=6',
+  '/manifest.json?v=7',
+  '/icon-192.svg?v=7',
+  '/icon-512.svg?v=7',
 ];
 
 /* ============================================================
@@ -29,7 +30,7 @@ const PRECACHE_URLS = [
    Descarga y cachea los archivos base de la app.
    ============================================================ */
 self.addEventListener('install', (event) => {
-  console.log('🔄 Service Worker v5 instalando...');
+  console.log('🔄 Service Worker v7 instalando...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE_URLS))
@@ -58,7 +59,7 @@ self.addEventListener('install', (event) => {
    Elimina versiones antiguas del caché y toma control inmediato.
    ============================================================ */
 self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker v5 activado');
+  console.log('✅ Service Worker v7 activado');
   const currentCaches = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
     caches.keys()
