@@ -2,6 +2,7 @@
 // ======================================
 // Autor: Lucas Román / 2025
 // Gestión centralizada de administradores, usuarios y reportes
+// Compatible con backend PHP actualizado (333 líneas)
 // ======================================
 
 const API_URL = 'https://ecomap.saltacoders.com/api.php';
@@ -18,6 +19,12 @@ interface AdminLoginResponse {
   error?: string;
 }
 
+interface APIResponse {
+  ok: boolean;
+  error?: string;
+  [key: string]: any;
+}
+
 export const adminService = {
   /** 🔐 Iniciar sesión de administrador (usa tabla `administradores`) */
   async login(usuario: string, password: string): Promise<AdminLoginResponse> {
@@ -26,16 +33,16 @@ export const adminService = {
       const res = await fetch(`${API_URL}?action=admin_login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body
+        body,
       });
       const data = await res.json();
 
       if (data.ok && data.admin) {
-        // Guardar sesión local
         localStorage.setItem('adminUser', JSON.stringify(data.admin));
       }
       return data;
-    } catch {
+    } catch (error) {
+      console.error('Error en login:', error);
       return { ok: false, error: 'NETWORK_ERROR' };
     }
   },
@@ -47,8 +54,12 @@ export const adminService = {
 
   /** 👤 Obtener el administrador actual desde localStorage */
   getCurrentAdmin() {
-    const stored = localStorage.getItem('adminUser');
-    return stored ? JSON.parse(stored) : null;
+    try {
+      const stored = localStorage.getItem('adminUser');
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
   },
 
   /** 📋 Obtener todos los usuarios registrados (con foto de perfil) */
@@ -56,52 +67,100 @@ export const adminService = {
     try {
       const res = await fetch(`${API_URL}?action=get_users`);
       const data = await res.json();
-      return data.ok && Array.isArray(data.usuarios) ? data.usuarios : [];
-    } catch {
+      if (data.ok && Array.isArray(data.usuarios)) {
+        return data.usuarios;
+      }
+      return [];
+    } catch (error) {
+      console.error('Error al obtener usuarios:', error);
       return [];
     }
   },
 
-  /** 🌎 Obtener reportes pendientes (solo los no aprobados) */
-  async getPendingReports() {
+  /** 🌍 Obtener TODOS los reportes (aprobados + pendientes, solo admin) */
+  async getAllReports() {
     try {
       const res = await fetch(`${API_URL}?action=get_points&admin=1`);
       const data = await res.json();
-      return data.ok && Array.isArray(data.puntos)
-        ? data.puntos.filter((p: any) => String(p.aprobado) !== '1')
-        : [];
-    } catch {
+      return data.ok && Array.isArray(data.puntos) ? data.puntos : [];
+    } catch (error) {
+      console.error('Error al obtener reportes:', error);
       return [];
     }
   },
 
-  /** ✅ Aprobar un reporte */
-  async approveReport(id: string) {
+  /** 🕓 Obtener reportes pendientes (no aprobados) */
+  async getPendingReports() {
+    try {
+      const res = await fetch(`${API_URL}?action=get_pending_reports`);
+      const data = await res.json();
+      return data.ok && Array.isArray(data.puntos)
+        ? data.puntos
+        : [];
+    } catch (error) {
+      console.error('Error al obtener reportes pendientes:', error);
+      return [];
+    }
+  },
+
+  /** ✅ Obtener reportes aprobados */
+  async getApprovedReports() {
+    try {
+      const res = await fetch(`${API_URL}?action=get_approved_reports`);
+      const data = await res.json();
+      return data.ok && Array.isArray(data.puntos)
+        ? data.puntos
+        : [];
+    } catch (error) {
+      console.error('Error al obtener reportes aprobados:', error);
+      return [];
+    }
+  },
+
+  /** 🟢 Aprobar un reporte */
+  async approveReport(id: string): Promise<APIResponse> {
     try {
       const form = new FormData();
       form.append('id', id);
       const res = await fetch(`${API_URL}?action=approve_point`, {
         method: 'POST',
-        body: form
+        body: form,
       });
-      return await res.json();
-    } catch {
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('Error al aprobar reporte:', error);
       return { ok: false, error: 'NETWORK_ERROR' };
     }
   },
 
-  /** ❌ Eliminar un reporte */
-  async deleteReport(id: string) {
+  /** 🔴 Eliminar un reporte */
+  async deleteReport(id: string): Promise<APIResponse> {
     try {
       const form = new FormData();
       form.append('id', id);
       const res = await fetch(`${API_URL}?action=delete_point`, {
         method: 'POST',
-        body: form
+        body: form,
       });
-      return await res.json();
-    } catch {
+      const data = await res.json();
+      return data;
+    } catch (error) {
+      console.error('Error al eliminar reporte:', error);
       return { ok: false, error: 'NETWORK_ERROR' };
     }
-  }
+  },
+
+  /** ♻️ Sincronizar cambios (útil para AdminPanel) */
+  async refreshReports() {
+    const [pending, approved] = await Promise.all([
+      this.getPendingReports(),
+      this.getApprovedReports(),
+    ]);
+    return {
+      pending,
+      approved,
+      total: [...pending, ...approved],
+    };
+  },
 };
