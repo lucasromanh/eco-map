@@ -3,7 +3,7 @@ import { getCategoryInfo } from '../utils/constants';
 import { formatDate, truncateText, formatCoordinates } from '../utils/helpers';
 import { useState } from 'react';
 
-// Helper para normalizar URLs de imágenes
+// Helper para normalizar URLs de imágenes con fallback
 const getImageUrl = (imageUrl: string | undefined): string => {
   if (!imageUrl) {
     return '';
@@ -19,13 +19,15 @@ const getImageUrl = (imageUrl: string | undefined): string => {
     return imageUrl;
   }
   
-  // Si empieza con /uploads/, construir URL completa
+  // Preferir el nuevo servidor
+  const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
+  
   if (imageUrl.startsWith('/uploads/')) {
-    return `https://ecomap.saltacoders.com${imageUrl}`;
+    return `${NEW_HOST}${imageUrl}`;
   }
   
   // Si solo es el nombre del archivo, construir URL completa
-  return `https://ecomap.saltacoders.com/uploads/reportes/${imageUrl}`;
+  return `${NEW_HOST}/uploads/reportes/${imageUrl}`;
 };
 
 interface ReportListProps {
@@ -137,7 +139,20 @@ export const ReportList = ({
                       className="w-full h-32 object-cover rounded-lg mb-3"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
+                        // Intentar con el dominio viejo como fallback
+                        if (!target.dataset.fallbackAttempted && report.imageUrl) {
+                          target.dataset.fallbackAttempted = 'true';
+                          const oldHost = 'https://ecomap.saltacoders.com';
+                          if (report.imageUrl.startsWith('/uploads/')) {
+                            target.src = `${oldHost}${report.imageUrl}`;
+                          } else if (!report.imageUrl.startsWith('http') && !report.imageUrl.startsWith('data:')) {
+                            target.src = `${oldHost}/uploads/reportes/${report.imageUrl}`;
+                          } else {
+                            target.style.display = 'none';
+                          }
+                        } else {
+                          target.style.display = 'none';
+                        }
                       }}
                     />
                   )}

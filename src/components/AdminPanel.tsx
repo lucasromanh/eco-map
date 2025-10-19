@@ -5,7 +5,7 @@ interface Props { isOpen: boolean; onClose: () => void; }
 
 type Tab = 'reports' | 'users' | 'admins';
 
-// Helper para normalizar URLs de imágenes
+// Helper para normalizar URLs de imágenes con fallback
 const getImageUrl = (imageUrl: string | null | undefined): string => {
   if (!imageUrl || imageUrl === 'null') {
     return 'https://via.placeholder.com/120x80?text=Sin+foto';
@@ -16,13 +16,15 @@ const getImageUrl = (imageUrl: string | null | undefined): string => {
     return imageUrl;
   }
   
-  // Si empieza con /uploads/, construir URL completa
+  // Preferir el nuevo servidor, pero tener fallback al viejo
+  const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
+  
   if (imageUrl.startsWith('/uploads/')) {
-    return `https://ecomap.saltacoders.com${imageUrl}`;
+    return `${NEW_HOST}${imageUrl}`;
   }
   
   // Si solo es el nombre del archivo, construir URL completa
-  return `https://ecomap.saltacoders.com/uploads/reportes/${imageUrl}`;
+  return `${NEW_HOST}/uploads/reportes/${imageUrl}`;
 };
 
 // Acciones demo para administración, disponibles para futuras integraciones
@@ -194,7 +196,20 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                             alt={r.titulo}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = 'https://via.placeholder.com/120x80?text=Sin+foto';
+                              // Intentar con el dominio viejo como fallback
+                              if (!target.dataset.fallbackAttempted && r.imagen) {
+                                target.dataset.fallbackAttempted = 'true';
+                                const oldHost = 'https://ecomap.saltacoders.com';
+                                if (r.imagen.startsWith('/uploads/')) {
+                                  target.src = `${oldHost}${r.imagen}`;
+                                } else if (!r.imagen.startsWith('http')) {
+                                  target.src = `${oldHost}/uploads/reportes/${r.imagen}`;
+                                } else {
+                                  target.src = 'https://via.placeholder.com/120x80?text=Sin+foto';
+                                }
+                              } else {
+                                target.src = 'https://via.placeholder.com/120x80?text=Sin+foto';
+                              }
                             }}
                           />
                         </div>
