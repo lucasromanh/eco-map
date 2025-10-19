@@ -121,10 +121,54 @@ function App() {
   //   setDeferredPrompt(null);
   // };
 
-  // Cargar reportes al iniciar
+  // Cargar reportes al iniciar (local + servidor)
   useEffect(() => {
-    const loadedReports = storageService.getReports();
-    setReports(loadedReports);
+    const loadReports = async () => {
+      // 1. Cargar reportes locales
+      const localReports = storageService.getReports();
+      setReports(localReports);
+      
+      // 2. Cargar reportes aprobados del servidor (si no es localhost)
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isDevelopment) {
+        try {
+          const { reportService } = await import('./services/reportService');
+          const response = await reportService.getApprovedPoints();
+          
+          if (response.ok && Array.isArray(response.points)) {
+            console.log('✅ Reportes del servidor cargados:', response.points.length);
+            
+            // Convertir reportes del servidor al formato local
+            const serverReports: Report[] = response.points.map((p: any) => ({
+              id: String(p.id),
+              title: p.titulo || 'Sin título',
+              description: p.descripcion || '',
+              category: p.tipo || 'otro',
+              latitude: parseFloat(p.lat),
+              longitude: parseFloat(p.lng),
+              imageUrl: p.imagen || undefined,
+              userId: String(p.usuario_id),
+              timestamp: p.fecha_creacion ? new Date(p.fecha_creacion).getTime() : Date.now(),
+              status: 'approved' as const,
+            }));
+            
+            // Combinar reportes locales y del servidor (evitar duplicados por ID)
+            const allReports = [...localReports];
+            serverReports.forEach(serverReport => {
+              if (!allReports.some(r => r.id === serverReport.id)) {
+                allReports.push(serverReport);
+              }
+            });
+            
+            setReports(allReports);
+          }
+        } catch (error) {
+          console.error('❌ Error al cargar reportes del servidor:', error);
+        }
+      }
+    };
+    
+    loadReports();
   }, []);
 
   // Utilidad: perfil completo (backend)
