@@ -47,7 +47,8 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
     
     try {
       // 📍 Obtener ubicación GPS ACTUAL del usuario con reintentos automáticos
-      const position = await getLocationWithRetry(2); // 2 reintentos
+      // useDefaultFallback=true para usar Córdoba, Argentina si falla todo
+      const position = await getLocationWithRetry(2, true); // 2 reintentos + fallback
 
       // ⚠️ IMPORTANTE: Usar coordenadas COMPLETAS del GPS (5-6 decimales)
       // NO redondear, puede desplazar hasta 10km la ubicación
@@ -68,8 +69,8 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
       const timestamp = Date.now();
       
       // 🌡️ Obtener pronóstico extendido de 7 días desde Open-Meteo
-      // Modelos: meteofrance (Sudamérica 0.1°), icon, gem
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m&current_weather=true&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,wind_speed_10m_max&models=meteofrance,icon,gem&timezone=auto&forecast_days=7&_=${timestamp}`;
+      // NOTA: No usar 'models' con 'current', causa error 400
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m&current_weather=true&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,wind_speed_10m_max&timezone=auto&forecast_days=7&_=${timestamp}`;
 
       // ⚠️ NO usar headers Cache-Control, causa error CORS en Open-Meteo
       const response = await fetch(url, { cache: 'no-store' });
@@ -349,9 +350,11 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
               <div className="text-xs text-gray-300">
                 <p className="font-semibold mb-1">Sobre los datos meteorológicos</p>
                 <p>
-                  📡 Prioriza datos oficiales de SMN Argentina cuando están disponibles. 
-                  Utiliza modelos de alta resolución (meteofrance 0.1°, icon, gem) como respaldo. 
-                  Los valores pueden diferir levemente de otras aplicaciones según el modelo usado.
+                  📡 <strong>Datos actuales:</strong> Prioriza SMN Argentina (oficial), con Open-Meteo como respaldo.
+                  <br />
+                  📊 <strong>Pronóstico 7 días:</strong> Obtenido desde Open-Meteo API.
+                  <br />
+                  ℹ️ Los valores pueden diferir de otras aplicaciones según la fuente y modelo usado.
                 </p>
               </div>
             </div>

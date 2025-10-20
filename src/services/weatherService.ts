@@ -69,16 +69,25 @@ export async function fetchCombinedWeather(lat: number, lon: number): Promise<We
     console.log('🌍 Usando Open-Meteo como respaldo...');
     const timestamp = Date.now();
     
-    // 🔥 Usar modelos de alta resolución: meteofrance (Sudamérica), icon, gem
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weather_code,uv_index,cloud_cover&models=meteofrance,icon,gem&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&_=${timestamp}`;
+    // 🔥 NO usar 'models' con 'current', causa error 400
+    // Usar configuración estándar con hourly para datos actuales más precisos
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,wind_direction_10m,precipitation,weather_code&hourly=uv_index&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto&forecast_days=1&_=${timestamp}`;
 
     // ⚠️ NO usar headers Cache-Control, causa error CORS en Open-Meteo
     const res = await fetch(url, { cache: 'no-store' });
     
-    if (!res.ok) throw new Error(`Open-Meteo error: ${res.status}`);
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(`Open-Meteo HTTP ${res.status}:`, errorText);
+      throw new Error(`Open-Meteo error: ${res.status}`);
+    }
     
     const data = await res.json();
     const current = data.current;
+    
+    // UV index viene del hourly, tomar el valor actual
+    const currentHour = new Date().getHours();
+    const uvIndex = data.hourly?.uv_index?.[currentHour] ?? 0;
 
     console.log(`✅ Usando Open-Meteo: ${current.temperature_2m}°C`);
 
@@ -91,7 +100,7 @@ export async function fetchCombinedWeather(lat: number, lon: number): Promise<We
       windSpeed: current.wind_speed_10m, // Ya viene en km/h
       windDirection: current.wind_direction_10m,
       precipitation: current.precipitation ?? 0,
-      uvIndex: current.uv_index ?? 0,
+      uvIndex: uvIndex,
       feelsLike: current.apparent_temperature,
       time: new Date(current.time).toLocaleTimeString('es-AR'),
     };
@@ -126,9 +135,10 @@ function getWeatherDescription(code: number | undefined): string {
 /**
  * 📍 Obtener ubicación GPS con reintentos automáticos
  * @param retries - Número de reintentos (por defecto 2)
+ * @param useDefaultFallback - Usar ubicación por defecto si falla todo (opcional)
  * @returns Promise con la posición GPS
  */
-export async function getLocationWithRetry(retries = 2): Promise<GeolocationPosition> {
+export async function getLocationWithRetry(retries = 2, useDefaultFallback = false): Promise<GeolocationPosition> {
   // Verificar permisos antes de solicitar ubicación
   if ('permissions' in navigator) {
     try {
@@ -185,7 +195,8 @@ export async function getLocationWithRetry(retries = 2): Promise<GeolocationPosi
             const { lat, lon, timestamp } = JSON.parse(lastPos);
             const ageMinutes = (Date.now() - timestamp) / 60000;
             
-            if (ageMinutes < 30) { // Usar si tiene menos de 30 minutos
+            // Ampliar ventana a 2 horas para mayor tolerancia
+            if (ageMinutes < 120) {
               console.log(`ℹ️ Usando última ubicación conocida (${ageMinutes.toFixed(0)} min atrás)`);
               return {
                 coords: {
@@ -201,17 +212,38 @@ export async function getLocationWithRetry(retries = 2): Promise<GeolocationPosi
               } as GeolocationPosition;
             }
           }
-        } catch {}
+        } catch (fallbackErr) {
+          console.warn('⚠️ No se pudo usar ubicación de fallback:', fallbackErr);
+        }
 
         // Si todo falla, lanzar error descriptivo
-        if (error.code === 1) {
-          throw new Error('Permisos de ubicación denegados. Por favor, habilitá la ubicación en los ajustes.');
-        } else if (error.code === 2) {
-          throw new Error('No se pudo obtener la ubicación. Verificá que el GPS esté habilitado.');
-        } else if (error.code === 3) {
-          throw new Error('Tiempo de espera agotado al obtener ubicación.');
+        const errorCode = error?.code;
+        
+        // Si se permite fallback por defecto, usar ubicación de Argentina Central
+        if (useDefaultFallback) {
+          console.warn('⚠️ Usando ubicación predeterminada (Argentina Central)');
+          return {
+            coords: {
+              latitude: -31.4135, // Córdoba, Argentina
+              longitude: -64.1811,
+              accuracy: 0,
+              altitude: null,
+              altitudeAccuracy: null,
+              heading: null,
+              speed: null,
+            },
+            timestamp: Date.now(),
+          } as GeolocationPosition;
+        }
+        
+        if (errorCode === 1) {
+          throw new Error('Permisos de ubicación denegados. Por favor, habilitá la ubicación en los ajustes del navegador.');
+        } else if (errorCode === 2) {
+          throw new Error('No se pudo determinar tu ubicación. Verificá que el GPS esté habilitado y que tengas buena señal.');
+        } else if (errorCode === 3) {
+          throw new Error('Tiempo de espera agotado al obtener ubicación. Intentá nuevamente.');
         } else {
-          throw new Error('Error desconocido al obtener ubicación.');
+          throw new Error('Error al obtener ubicación. Verificá los permisos del navegador.');
         }
       }
     }
