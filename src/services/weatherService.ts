@@ -89,7 +89,7 @@ export async function fetchCombinedWeather(lat: number, lon: number): Promise<We
     const currentHour = new Date().getHours();
     const uvIndex = data.hourly?.uv_index?.[currentHour] ?? 0;
 
-    console.log(`✅ Usando Open-Meteo: ${current.temperature_2m}°C`);
+    console.log(`✅ Usando Open-Meteo: ${current.temperature_2m}°C | Código clima: ${current.weather_code} | ${getWeatherDescription(current.weather_code)}`);
 
     return {
       provider: 'Open-Meteo',

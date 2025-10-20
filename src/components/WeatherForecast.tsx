@@ -100,17 +100,24 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
         const windMs = data.daily.wind_speed_10m_max[index]; // m/s desde API
         const wind = windMs * 3.6; // ✅ Convertir m/s → km/h (multiplicar por 3.6)
         
-        // 🔥 Para el día actual (index 0), usar temperatura REAL si está disponible
+        // 🔥 Para el día actual (index 0), usar datos REALES del clima actual
         let temperature = (tempMax + tempMin) / 2; // Promedio por defecto
-        if (index === 0 && currentTemp !== null) {
-          temperature = currentTemp; // ✅ Temperatura ACTUAL del clima
-        }
+        let description = 'Despejado'; // Por defecto
         
-        let description = 'Despejado';
-        if (precip > 50) description = 'Lluvias intensas';
-        else if (precip > 20) description = 'Lluvias moderadas';
-        else if (precip > 5) description = 'Lloviznas';
-        else if (precip > 0) description = 'Posibles precipitaciones';
+        if (index === 0) {
+          // ✅ Día actual: usar datos reales del servicio combinado
+          if (currentTemp !== null) {
+            temperature = currentTemp; // Temperatura ACTUAL
+          }
+          // ✅ Usar descripción REAL del clima actual (incluye nubes)
+          description = currentWeatherData.description;
+        } else {
+          // Días futuros: generar descripción basada en precipitación
+          if (precip > 50) description = 'Lluvias intensas';
+          else if (precip > 20) description = 'Lluvias moderadas';
+          else if (precip > 5) description = 'Lloviznas';
+          else if (precip > 0) description = 'Posibles precipitaciones';
+        }
         
         return {
           location: locationName, // Nombre real de la ubicación
@@ -121,7 +128,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
           windSpeed: wind,
           windDirection: index === 0 ? windDirection : undefined, // ✨ Dirección solo para hoy
           feelsLike: index === 0 ? feelsLike : undefined, // ✨ Sensación térmica solo para hoy
-          description,
+          description, // ✅ Descripción REAL para hoy, basada en precipitación para otros días
         };
       });
       
