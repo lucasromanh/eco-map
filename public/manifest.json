@@ -1,57 +1,49 @@
 {
-  "name": "EcoMap - Mapa Ambiental Colaborativo",
+  "name": "EcoMap",
   "short_name": "EcoMap",
-  "description": "Aplicación colaborativa para visualizar y reportar información ambiental en tu zona",
-  "start_url": "/?pwa=v7",
+  "description": "EcoMap es una app colaborativa para reportes ambientales. Desarrollada por Lucas Román, Software Developer, Salta, Argentina.",
+  "start_url": "/?pwa=__APP_VERSION__",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#22c55e",
-  "orientation": "portrait-primary",
-  "icons": [
-    {
-  "src": "/icon-192.svg?v=7",
-  "type": "image/svg+xml",
-  "sizes": "192x192",
-  "purpose": "any"
-    },
-    {
-  "src": "/icon-512.svg?v=7",
-  "type": "image/svg+xml",
-  "sizes": "512x512",
-  "purpose": "any"
-    },
-    {
-  "src": "/icon-192.svg?v=7",
-  "type": "image/svg+xml",
-  "sizes": "192x192",
-  "purpose": "maskable"
-    },
-    {
-  "src": "/icon-512.svg?v=7",
-  "type": "image/svg+xml",
-  "sizes": "512x512",
-  "purpose": "maskable"
-    }
-  ],
-  "categories": ["environment", "utilities", "lifestyle"],
+  "background_color": "#000000",
+  "theme_color": "#00b894",
+  "categories": ["environment", "utilities", "lifestyle", "collaborative"],
   "lang": "es",
   "dir": "ltr",
   "scope": "/",
+  "developer": {
+    "name": "Lucas Román",
+    "role": "Software Developer",
+    "location": "Salta, Argentina",
+    "email": "lucas@saltacoders.com",
+    "website": "www.saltacoders.com"
+  },
   "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/icon-192.svg?v=__APP_VERSION__",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-512.svg?v=__APP_VERSION__",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
   "shortcuts": [
     {
       "name": "Reportar",
       "short_name": "Reportar",
       "description": "Crear un nuevo reporte ambiental",
       "url": "/?action=add",
-      "icons": [{ "src": "/icon-192.svg?v=7", "type": "image/svg+xml", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.svg?v=__APP_VERSION__", "type": "image/svg+xml", "sizes": "192x192" }]
     },
     {
       "name": "Ver Reportes",
       "short_name": "Reportes",
       "description": "Ver todos los reportes",
       "url": "/?action=list",
-      "icons": [{ "src": "/icon-192.svg?v=7", "type": "image/svg+xml", "sizes": "192x192" }]
+      "icons": [{ "src": "/icon-192.svg?v=__APP_VERSION__", "type": "image/svg+xml", "sizes": "192x192" }]
     }
   ]
 }
