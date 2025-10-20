@@ -1,5 +1,5 @@
 /* ============================================================
-   🌎 EcoMap Service Worker - v8
+   🌎 EcoMap Service Worker - v9
    Autor: Lucas Román / SaltaCoders
    Última actualización: 2025-10-19
    ------------------------------------------------------------
@@ -11,18 +11,19 @@
    ✅ Notificar a la app cuando hay una nueva versión
    ✅ Soportar imágenes de ambos servidores (nuevo y viejo)
    ✅ Safari iOS: cache: 'no-store' para peticiones dinámicas
+   ✅ FIX iOS: No interceptar POST/PUT/DELETE (solo GET)
    ============================================================ */
 
-const CACHE_NAME = 'ecomap-v8';
-const RUNTIME_CACHE = 'ecomap-runtime-v8';
+const CACHE_NAME = 'ecomap-v9';
+const RUNTIME_CACHE = 'ecomap-runtime-v9';
 
 // Archivos base que se precargan
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/manifest.json?v=8',
-  '/icon-192.svg?v=8',
-  '/icon-512.svg?v=8',
+  '/manifest.json?v=9',
+  '/icon-192.svg?v=9',
+  '/icon-512.svg?v=9',
 ];
 
 /* ============================================================
@@ -31,7 +32,7 @@ const PRECACHE_URLS = [
    Descarga y cachea los archivos base de la app.
    ============================================================ */
 self.addEventListener('install', (event) => {
-  console.log('🔄 Service Worker v8 instalando...');
+  console.log('🔄 Service Worker v9 instalando...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE_URLS))
@@ -60,7 +61,7 @@ self.addEventListener('install', (event) => {
    Elimina versiones antiguas del caché y toma control inmediato.
    ============================================================ */
 self.addEventListener('activate', (event) => {
-  console.log('✅ Service Worker v8 activado');
+  console.log('✅ Service Worker v9 activado');
   const currentCaches = [CACHE_NAME, RUNTIME_CACHE];
   event.waitUntil(
     caches.keys()
@@ -101,9 +102,16 @@ self.addEventListener('activate', (event) => {
    - No cachea llamadas al backend (PHP)
    - Network first para HTML
    - Cache first para estáticos
+   - FIX iOS: Solo intercepta peticiones GET
    ============================================================ */
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+
+  // 🚫 FIX para PWA iOS (Safari WebKit bug):
+  // No interceptar peticiones POST, PUT o DELETE (solo GET)
+  if (event.request.method !== 'GET') {
+    return; // dejar que el navegador las maneje directamente
+  }
 
   // 🚫 Evitar cachear cualquier llamada al backend PHP o con parámetros "action="
   if (url.pathname.endsWith('.php') || url.searchParams.has('action')) {
@@ -138,17 +146,7 @@ self.addEventListener('fetch', (event) => {
   // 📄 Navegación HTML → Network first
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // ⚡ Forzar actualización de manifest e íconos si hay cambios
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put('/manifest.json', response.clone());
-            cache.put('/icon-192.svg', response.clone());
-            cache.put('/icon-512.svg', response.clone());
-          });
-          return response;
-        })
-        .catch(() => caches.match('/index.html'))
+      fetch(event.request).catch(() => caches.match('/index.html'))
     );
     return;
   }

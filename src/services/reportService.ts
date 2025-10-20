@@ -72,7 +72,11 @@ export const reportService = {
     const fd = new FormData();
     fd.append('action', 'delete_point');
     fd.append('id', reportId);
-    fd.append('usuario_id', usuarioId);
+
+    // Enviar solo si es válido
+    if (!isAdmin && usuarioId && usuarioId !== 'undefined' && usuarioId !== 'null') {
+      fd.append('usuario_id', String(parseInt(usuarioId)));
+    }
     if (isAdmin) fd.append('admin', '1');
 
     try {

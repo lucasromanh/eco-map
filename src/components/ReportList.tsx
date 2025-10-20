@@ -31,13 +31,17 @@ export const ReportList = ({
   // Función para eliminar reporte con validación de usuario
   const handleDeleteReport = async (reportId: string) => {
     const user = userService.getProfile();
-    if (!user) {
+    if (!user?.id || user.id === 'undefined' || user.id === 'null' || isNaN(Number(user.id))) {
       alert('⚠️ Debes iniciar sesión para eliminar un reporte');
       return;
     }
 
     const isAdmin = !!localStorage.getItem('adminUser');
-    const res = await reportService.deleteReport(String(reportId), String(user.id), isAdmin);
+    const res = await reportService.deleteReport(
+      String(reportId),
+      String(user.id),
+      isAdmin
+    );
 
     if (res.ok) {
       alert('✅ Reporte eliminado correctamente');
