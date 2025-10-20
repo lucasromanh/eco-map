@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import type { UserProfile as IUserProfile } from '../types';
 import { userService } from '../services/userService';
 import { fileToBase64 } from '../utils/helpers';
-import { getUnifiedImageUrl } from '../utils/imageHelpers';
 
 interface Props {
   isOpen: boolean;
@@ -150,7 +149,8 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             <div className="sm:col-span-2 flex items-center gap-4">
               <div className="relative">
                 <img
-                  src={getUnifiedImageUrl(profile.avatarUrl)}
+                  src={profile.avatarUrl || '/images/default_user.svg'}
+                  onError={(e) => (e.currentTarget.src = '/images/default_user.svg')}
                   alt="avatar"
                   className="w-16 h-16 rounded-full object-cover border"
                 />

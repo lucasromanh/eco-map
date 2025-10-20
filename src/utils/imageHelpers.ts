@@ -10,25 +10,26 @@ export const getUnifiedImageUrl = (url?: string | null): string => {
     return url;
   }
 
-  const OLD_HOST = 'https://ecomap.saltacoders.com';
-  const NEW_HOST = 'https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap';
+  const PUBLIC_HOST = 'https://ecomap.saltacoders.com';
 
-  // Si ya es una URL absoluta (http/https)
+  // Si ya es URL absoluta (http/https)
   if (url.startsWith('http')) {
-    // Normaliza imágenes antiguas o nuevas sin modificar si funcionan
-    return url;
+    // 🔧 Corrige URLs viejas con /ecomap duplicado o srv882-files
+    return url
+      .replace('https://srv882-files.hstgr.io/ad0821ef897e0cb5/files/public_html/ecomap', PUBLIC_HOST)
+      .replace('https://ecomap.saltacoders.com/ecomap/', `${PUBLIC_HOST}/`);
   }
 
   // Si es ruta relativa (ej: /uploads/reportes/xxx.jpg)
   if (url.startsWith('/uploads/')) {
-    return `${NEW_HOST}${url}`;
+    return `${PUBLIC_HOST}${url}`;
   }
 
-  // Si solo es el nombre del archivo (ej: 123abc.jpg)
+  // Si es solo el nombre del archivo (ej: 123abc.jpg)
   if (!url.includes('/')) {
-    return `${NEW_HOST}/uploads/reportes/${url}`;
+    return `${PUBLIC_HOST}/uploads/reportes/${url}`;
   }
 
   // Fallback final
-  return `${OLD_HOST}${url}`;
+  return `${PUBLIC_HOST}${url}`;
 };

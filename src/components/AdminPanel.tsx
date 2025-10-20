@@ -307,7 +307,12 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                     {allUsers.map(u => (
                       <div key={`user-${u.id}`} className="border border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start gap-3 mb-3">
-                          <img src={u.foto_perfil && u.foto_perfil !== 'null' ? u.foto_perfil : 'https://via.placeholder.com/48?text=U'} className="w-12 h-12 rounded-full object-cover flex-shrink-0 bg-gray-200 dark:bg-gray-700" />
+                          <img 
+                            src={u.foto_perfil && u.foto_perfil !== 'null' ? u.foto_perfil : '/images/default_user.svg'} 
+                            onError={(e) => (e.currentTarget.src = '/images/default_user.svg')}
+                            className="w-12 h-12 rounded-full object-cover flex-shrink-0 bg-gray-200 dark:bg-gray-700" 
+                            alt="Usuario"
+                          />
                           <div className="flex-1 min-w-0">
                             <div className="font-semibold text-sm text-gray-100 truncate">{u.nombre} {u.apellido}</div>
                             <div className="text-xs text-gray-400 truncate">{u.email}</div>
