@@ -150,7 +150,7 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
             <div className="flex items-center space-x-3">
               <div className="text-3xl">🌍</div>
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-primary-400">EcoMap</h1>
+                <h1 className="text-2xl font-bold text-white">EcoMap</h1>
                 <p className="text-xs text-gray-400">Cuidemos nuestro planeta</p>
               </div>
               {userProfile && (
