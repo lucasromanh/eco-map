@@ -117,6 +117,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 🌡️ NO cachear API del clima (Open-Meteo) - siempre consulta fresca
+  if (url.hostname.includes('api.open-meteo.com') || url.hostname.includes('openweathermap.org')) {
+    console.log('🌡️ Bypassing cache for weather API:', url.href);
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .then(response => response)
+        .catch(() => new Response(JSON.stringify({ error: 'offline' }), {
+          headers: { 'Content-Type': 'application/json' }
+        }))
+    );
+    return;
+  }
+
   // 🚫 No cachear llamadas externas (ej: Google Maps)
   if (!url.origin.includes(self.location.origin)) {
     return;

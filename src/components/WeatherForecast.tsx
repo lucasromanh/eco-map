@@ -12,6 +12,8 @@ interface ForecastData {
   temperature: number;
   humidity: number;
   windSpeed: number;
+  windDirection?: number; // ✨ Dirección del viento en grados (0-360)
+  feelsLike?: number; // ✨ Sensación térmica (solo para día actual)
   description: string;
 }
 
@@ -42,14 +44,41 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
     setError(null);
     
     try {
-      // Coordenadas de Salta Capital
-      const latitude = -24.7859;
-      const longitude = -65.4117;
+      // 📍 Obtener ubicación GPS ACTUAL del usuario (coordenadas completas)
+      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocalización no disponible'));
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true, // GPS preciso
+          timeout: 10000,
+          maximumAge: 0, // No usar caché
+        });
+      });
+
+      // ⚠️ IMPORTANTE: Usar coordenadas COMPLETAS del GPS (5-6 decimales)
+      // NO redondear, puede desplazar hasta 10km la ubicación
+      const latitude = position.coords.latitude; // Valor completo
+      const longitude = position.coords.longitude; // Valor completo
       
-      // Usar Open-Meteo como proxy para datos meteorológicos (incluye precipitación)
-      // En producción, esto debería conectarse al SMN o WRF-CPTEC
+      console.log(`🌡️ Consultando pronóstico para: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+      
+      // 🔥 Timestamp único para evitar caché del service worker en PWA
+      const timestamp = Date.now();
+      
+      // 🌡️ Usar Open-Meteo con current_weather=true + datos actuales extendidos
+      // current: temperatura, sensación térmica, velocidad y dirección del viento
+      // Nota: relative_humidity_2m_mean en lugar de _max para valor más representativo
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,relative_humidity_2m_max,wind_speed_10m_max&timezone=America/Argentina/Salta&forecast_days=7`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m&current_weather=true&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,wind_speed_10m_max&timezone=auto&forecast_days=7&_=${timestamp}`,
+        {
+          // 🔥 Forzar consulta fresca, sin caché del service worker
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache',
+          },
+        }
       );
       
       if (!response.ok) {
@@ -58,13 +87,31 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
       
       const data = await response.json();
       
+      // 📍 Obtener nombre de ubicación desde timezone (ej: "America/Argentina/Salta" → "Argentina Salta")
+      const locationName = data.timezone ? data.timezone.split('/').slice(1).join(' ').replace(/_/g, ' ') : 'Tu ubicación';
+      
+      // 🌡️ Datos actuales del clima (solo disponibles para hoy, index 0)
+      const currentTemp = data.current_weather?.temperature ?? null;
+      const feelsLike = data.current?.apparent_temperature ?? null; // ✨ Sensación térmica
+      const currentWindSpeed = data.current?.wind_speed_10m ?? null; // m/s
+      const windDirection = data.current?.wind_direction_10m ?? null; // grados (0-360)
+      
+      console.log(`🌡️ Temperatura actual: ${currentTemp}°C | Sensación térmica: ${feelsLike}°C | Viento: ${currentWindSpeed ? (currentWindSpeed * 3.6).toFixed(1) : '?'} km/h ${windDirection ? getWindDirection(windDirection) : ''} | Ubicación: ${locationName}`);
+      
       // Transformar datos
       const forecast: ForecastData[] = data.daily.time.map((date: string, index: number) => {
         const precip = data.daily.precipitation_sum[index];
         const tempMax = data.daily.temperature_2m_max[index];
         const tempMin = data.daily.temperature_2m_min[index];
-        const humidity = data.daily.relative_humidity_2m_max[index];
-        const wind = data.daily.wind_speed_10m_max[index];
+        const humidity = data.daily.relative_humidity_2m_mean[index]; // ✅ Promedio en vez de máximo
+        const windMs = data.daily.wind_speed_10m_max[index]; // m/s desde API
+        const wind = windMs * 3.6; // ✅ Convertir m/s → km/h (multiplicar por 3.6)
+        
+        // 🔥 Para el día actual (index 0), usar temperatura REAL si está disponible
+        let temperature = (tempMax + tempMin) / 2; // Promedio por defecto
+        if (index === 0 && currentTemp !== null) {
+          temperature = currentTemp; // ✅ Temperatura ACTUAL del clima
+        }
         
         let description = 'Despejado';
         if (precip > 50) description = 'Lluvias intensas';
@@ -73,19 +120,28 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
         else if (precip > 0) description = 'Posibles precipitaciones';
         
         return {
-          location: 'Salta Capital',
+          location: locationName, // Nombre real de la ubicación
           date,
           precipitation: precip,
-          temperature: (tempMax + tempMin) / 2,
+          temperature, // ✅ Temperatura ACTUAL para hoy, promedio para otros días
           humidity,
           windSpeed: wind,
+          windDirection: index === 0 ? windDirection : undefined, // ✨ Dirección solo para hoy
+          feelsLike: index === 0 ? feelsLike : undefined, // ✨ Sensación térmica solo para hoy
           description,
         };
       });
       
       setForecastData(forecast);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      console.error('❌ Error al obtener pronóstico:', err);
+      setError(
+        err instanceof GeolocationPositionError
+          ? 'No se pudo obtener tu ubicación. Verifica los permisos de ubicación.'
+          : err instanceof Error
+            ? err.message
+            : 'Error desconocido al obtener el pronóstico'
+      );
       console.error('Error al cargar pronóstico:', err);
     } finally {
       setLoading(false);
@@ -93,6 +149,13 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
   };
 
   if (!isOpen) return null;
+
+  // ✨ Convertir grados de viento a dirección cardinal
+  const getWindDirection = (degrees: number): string => {
+    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSO', 'SO', 'OSO', 'O', 'ONO', 'NO', 'NNO'];
+    const index = Math.round(degrees / 22.5) % 16;
+    return directions[index];
+  };
 
   const getWeatherEmoji = (precipitation: number) => {
     if (precipitation > 50) return '⛈️';
@@ -189,6 +252,12 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                         {selectedDay === 0 ? 'Hoy' : selectedDay === 1 ? 'Mañana' : formatDate(selectedForecast.date)}
                       </h4>
                       <p className="text-sm text-gray-400">{selectedForecast.location}</p>
+                      {/* 🌡️ Badge para indicar temperatura actual (solo día 0) */}
+                      {selectedDay === 0 && (
+                        <span className="inline-block mt-1 px-2 py-0.5 bg-green-500 text-white text-[10px] font-bold rounded-full">
+                          🌡️ TEMPERATURA ACTUAL
+                        </span>
+                      )}
                     </div>
                     <div className="text-6xl">{getWeatherEmoji(selectedForecast.precipitation)}</div>
                   </div>
@@ -212,6 +281,12 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                       <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                         {selectedForecast.temperature.toFixed(1)}°C
                       </p>
+                      {/* ✨ Sensación térmica (solo para día actual) */}
+                      {selectedDay === 0 && selectedForecast.feelsLike !== undefined && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          Sensación: <span className="font-semibold text-orange-500">{selectedForecast.feelsLike.toFixed(1)}°C</span>
+                        </p>
+                      )}
                     </div>
 
                     <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
@@ -232,6 +307,12 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                       <p className="text-2xl font-bold text-gray-400">
                         {selectedForecast.windSpeed.toFixed(1)} km/h
                       </p>
+                      {/* ✨ Dirección del viento (solo para día actual) */}
+                      {selectedDay === 0 && selectedForecast.windDirection !== undefined && (
+                        <p className="text-xs text-gray-400 mt-1">
+                          Dirección: <span className="font-semibold">{getWindDirection(selectedForecast.windDirection)}</span> ({selectedForecast.windDirection}°)
+                        </p>
+                      )}
                     </div>
                   </div>
 

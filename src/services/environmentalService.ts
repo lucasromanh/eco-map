@@ -32,28 +32,36 @@ export const environmentalService = {
   },
   /**
    * Obtiene datos ambientales para una ubicación específica
+   * @param latitude - Latitud completa (sin redondear, 5-6 decimales)
+   * @param longitude - Longitud completa (sin redondear, 5-6 decimales)
    */
   async getEnvironmentalData(
     latitude: number,
     longitude: number
   ): Promise<EnvironmentalData> {
     try {
+      // ⚠️ IMPORTANTE: Enviar coordenadas COMPLETAS sin redondear
+      // El redondeo puede desplazar la ubicación hasta 10km
       const response = await axios.get(OPEN_METEO_API, {
         params: {
-          latitude,
-          longitude,
+          latitude: latitude, // Enviar valor completo del GPS
+          longitude: longitude, // Enviar valor completo del GPS
           current: 'temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation,weather_code,uv_index,cloud_cover',
           temperature_unit: 'celsius',
           wind_speed_unit: 'kmh',
           precipitation_unit: 'mm',
           timezone: 'auto',
         },
+        // 🔥 Forzar consulta fresca, sin caché (importante para PWA)
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
       });
 
       const current = response.data.current;
 
       return {
-        temperature: current.temperature_2m,
+        temperature: current.temperature_2m, // ✅ Usa temp actual, no mínima
         humidity: current.relative_humidity_2m,
         windSpeed: current.wind_speed_10m,
         precipitation: current.precipitation,
