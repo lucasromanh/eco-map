@@ -133,9 +133,9 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
     <div className="fixed inset-0 z-[3000] overflow-y-auto">
       <div className="fixed inset-0 bg-black/50" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full p-6 animate-slide-up">
+        <div className="relative bg-gray-900 rounded-xl shadow-2xl max-w-lg w-full p-6 animate-slide-up">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+            <h2 className="text-2xl font-bold text-gray-100">
               Perfil de usuario
             </h2>
             <button
@@ -182,11 +182,11 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Nombre *
               </label>
               <input
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100"
                 value={profile.firstName}
                 onChange={(e) =>
                   setProfile({ ...profile, firstName: e.target.value })
@@ -195,11 +195,11 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Apellido *
               </label>
               <input
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100"
                 value={profile.lastName}
                 onChange={(e) =>
                   setProfile({ ...profile, lastName: e.target.value })
@@ -208,12 +208,12 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Email *
               </label>
               <input
                 type="email"
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100"
                 value={profile.email}
                 onChange={(e) =>
                   setProfile({ ...profile, email: e.target.value })
@@ -222,11 +222,11 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Teléfono
               </label>
               <input
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100"
                 value={profile.phone || ''}
                 onChange={(e) =>
                   setProfile({ ...profile, phone: e.target.value })
@@ -235,12 +235,12 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Edad
               </label>
               <input
                 type="number"
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100"
                 value={profile.age || ''}
                 onChange={(e) =>
                   setProfile({
@@ -252,11 +252,11 @@ export const UserProfile = ({ isOpen, onClose }: Props) => {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Dirección
               </label>
               <input
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100"
                 value={profile.address || ''}
                 onChange={(e) =>
                   setProfile({ ...profile, address: e.target.value })

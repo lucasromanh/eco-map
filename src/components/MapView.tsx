@@ -236,7 +236,7 @@ export const MapView = ({
               <Popup>
                 <div className="p-2">
                   <h3 className="font-bold text-primary-600">Tu ubicación</h3>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                  <p className="text-sm text-gray-300">
                     {formatCoordinates(userLocation.latitude, userLocation.longitude)}
                   </p>
                   {environmentalData && (
@@ -285,8 +285,8 @@ export const MapView = ({
             <Popup>
               <div className="p-2">
                 <h3 className="font-bold text-primary-600">Salta Capital — Punto de acceso</h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">Usa este punto para empezar a explorar y crear reportes.</p>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">📍 {formatCoordinates(DEFAULT_CENTER[0], DEFAULT_CENTER[1])}</p>
+                <p className="text-sm text-gray-300">Usa este punto para empezar a explorar y crear reportes.</p>
+                <p className="text-xs text-gray-400 mt-1">📍 {formatCoordinates(DEFAULT_CENTER[0], DEFAULT_CENTER[1])}</p>
               </div>
             </Popup>
           </Marker>
@@ -301,7 +301,7 @@ export const MapView = ({
           >
             <Popup maxWidth={300}>
               <div className="p-2">
-                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">
+                <h3 className="font-bold text-lg text-gray-100 mb-1">
                   {report.title}
                 </h3>
                 <div className="flex items-center space-x-2 mb-2">
@@ -311,11 +311,11 @@ export const MapView = ({
                   }}>
                     {getCategoryInfo(report.category)?.icon} {getCategoryInfo(report.category)?.label}
                   </span>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                  <span className="text-xs text-gray-400">
                     {formatDate(report.timestamp)}
                   </span>
                 </div>
-                <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                <p className="text-sm text-gray-300 mb-2">
                   {report.description}
                 </p>
                 {report.imageUrl && (
@@ -364,7 +364,7 @@ export const MapView = ({
                     }}
                   />
                 )}
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   📍 {formatCoordinates(report.latitude, report.longitude)}
                 </p>
               </div>
@@ -389,7 +389,7 @@ export const MapView = ({
 
       {/* Panel de información ambiental flotante */}
       {showWeatherPanel && environmentalData && envScore && (
-  <div className="absolute top-4 right-4 z-[1000] bg-white/95 dark:bg-gray-800 rounded-xl shadow-2xl max-w-xs border-2 border-primary-400 dark:border-primary-600 backdrop-blur-sm">
+  <div className="absolute top-4 right-4 z-[1000] bg-gray-900/95 rounded-xl shadow-2xl max-w-xs border-2 border-primary-400 dark:border-primary-600 backdrop-blur-sm">
           <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white px-4 py-3 rounded-t-xl">
             <h3 className="font-bold text-base flex items-center gap-2">
               <span className="text-xl">🌡️</span>
@@ -406,22 +406,22 @@ export const MapView = ({
           </div>
           <div className="p-4 space-y-3">
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-800 dark:text-gray-400 flex items-center gap-1 font-medium">
+              <span className="text-gray-300 flex items-center gap-1 font-medium">
                 <span className="text-lg">{weatherInfo.emoji}</span> Estado
               </span>
-              <span className="font-bold text-sm text-gray-900 dark:text-gray-200">
+              <span className="font-bold text-sm text-gray-200">
                 {weatherInfo.label}
               </span>
             </div>
             <div className="flex justify-between items-center text-xs py-1">
-              <label className="text-gray-800 dark:text-gray-400 flex items-center gap-2 font-medium" title="Efectos visuales del clima sobre el mapa">
+              <label className="text-gray-300 flex items-center gap-2 font-medium" title="Efectos visuales del clima sobre el mapa">
                 <input type="checkbox" className="accent-green-600" checked={effectsEnabled} onChange={() => { /* controlado por Header/App */ }} />
                 Efectos visuales (Header)
               </label>
-              {forcedEffect && <span className="text-[10px] text-gray-600 dark:text-gray-400">forzado: {forcedEffect}</span>}
+              {forcedEffect && <span className="text-[10px] text-gray-400">forzado: {forcedEffect}</span>}
             </div>
             <div className="flex justify-between items-center text-xs py-1">
-              <label className="text-gray-800 dark:text-gray-400 flex items-center gap-2 font-medium" title="Usar el centro del mapa para consultar los datos (útil si el GPS es impreciso)">
+              <label className="text-gray-300 flex items-center gap-2 font-medium" title="Usar el centro del mapa para consultar los datos (útil si el GPS es impreciso)">
                 <input
                   type="checkbox"
                   className="accent-green-600"
@@ -430,36 +430,36 @@ export const MapView = ({
                 />
                 Usar centro del mapa
               </label>
-              <span className="text-[10px] text-gray-600 dark:text-gray-400">{preferCenter ? '📍 Centro' : (userLocation ? '📍 GPS' : '📍 Predeterminado')}</span>
+              <span className="text-[10px] text-gray-400">{preferCenter ? '📍 Centro' : (userLocation ? '📍 GPS' : '📍 Predeterminado')}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-800 dark:text-gray-400 flex items-center gap-1 font-medium">
+              <span className="text-gray-300 flex items-center gap-1 font-medium">
                 <span className="text-lg">🌡️</span> Temperatura
               </span>
-              <span className="font-bold text-lg text-gray-900 dark:text-primary-400">
+              <span className="font-bold text-lg text-primary-400">
                 {environmentalData.temperature?.toFixed(1)}°C
               </span>
             </div>
             {environmentalData.precipitation !== undefined && (
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-800 dark:text-gray-400 flex items-center gap-1 font-medium">
+                <span className="text-gray-300 flex items-center gap-1 font-medium">
                   <span className="text-lg">🌧️</span> Precipitación
                 </span>
-                <span className="font-bold text-lg text-sky-600 dark:text-sky-400">
+                <span className="font-bold text-lg text-sky-400">
                   {environmentalData.precipitation?.toFixed(1)} mm
                 </span>
               </div>
             )}
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-800 dark:text-gray-400 flex items-center gap-1 font-medium">
+              <span className="text-gray-300 flex items-center gap-1 font-medium">
                 <span className="text-lg">💧</span> Humedad
               </span>
-              <span className="font-bold text-lg text-blue-600 dark:text-blue-400">
+              <span className="font-bold text-lg text-blue-400">
                 {environmentalData.humidity?.toFixed(0)}%
               </span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-800 dark:text-gray-400 flex items-center gap-1 font-medium">
+              <span className="text-gray-300 flex items-center gap-1 font-medium">
                 <span className="text-lg">💨</span> Viento
               </span>
               <span className="font-bold text-lg text-gray-900 dark:text-gray-300">
@@ -468,7 +468,7 @@ export const MapView = ({
             </div>
             {environmentalData.uvIndex !== undefined && (
               <div className="flex justify-between items-center text-sm">
-                <span className="text-gray-800 dark:text-gray-400 flex items-center gap-1 font-medium">
+                <span className="text-gray-300 flex items-center gap-1 font-medium">
                   <span className="text-lg">☀️</span> Índice UV
                 </span>
                 <span className="font-bold text-lg text-orange-600 dark:text-orange-400">
@@ -478,14 +478,14 @@ export const MapView = ({
             )}
             <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
               <div className="p-3 rounded-lg" style={{ backgroundColor: envScore.color + '25', borderLeft: `4px solid ${envScore.color}` }}>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                <p className="text-xs text-gray-400 mb-1">
                   Índice de Calidad Ambiental
                 </p>
                 <p className="text-sm font-bold" style={{ color: envScore.color }}>
                   {envScore.label} ({envScore.score}/100)
                 </p>
               </div>
-              <p className="mt-2 text-[10px] text-gray-600 dark:text-gray-400">
+              <p className="mt-2 text-[10px] text-gray-400">
                 Fuente: Open‑Meteo. Puede diferir de otras apps por proveedor y hora de medición.
               </p>
             </div>

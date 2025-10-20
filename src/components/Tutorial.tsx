@@ -111,7 +111,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
   return (
     <div className="fixed inset-0 z-[3000] bg-black bg-opacity-70 backdrop-blur-sm flex transition-all duration-300">
       <div className={`w-full h-full flex ${positionClasses[step.position || 'center']} p-4`}>
-  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slide-up">
+  <div className="bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full p-6 animate-slide-up border border-gray-700">
           {/* Icono */}
           <div className="text-center mb-4">
             <div className="text-6xl mb-2 animate-bounce">{step.icon}</div>
@@ -119,23 +119,23 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
 
           {/* Contenido */}
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+            <h2 className="text-2xl font-bold text-gray-100 mb-3">
               {step.title}
             </h2>
-            <p className="text-gray-700 dark:text-gray-300 text-base leading-relaxed">
+            <p className="text-gray-300 text-base leading-relaxed">
               {step.description}
             </p>
           </div>
 
           {/* Progress Bar */}
           <div className="mb-6">
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-700 rounded-full h-2">
               <div
                 className="bg-primary-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="flex justify-between mt-2 text-xs text-gray-600 dark:text-gray-400">
+            <div className="flex justify-between mt-2 text-xs text-gray-400">
               <span>Paso {currentStep + 1} de {tutorialSteps.length}</span>
               <span>{Math.round(progress)}%</span>
             </div>
@@ -146,7 +146,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
             {currentStep > 0 && (
               <button
                 onClick={handlePrevious}
-                className="flex-1 py-3 px-4 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors shadow-md"
+                className="flex-1 py-3 px-4 bg-gray-700 text-gray-300 rounded-xl font-semibold hover:bg-gray-600 transition-colors shadow-md"
               >
                 ← Anterior
               </button>
@@ -156,7 +156,7 @@ export const Tutorial = ({ onComplete }: TutorialProps) => {
               <>
                 <button
                   onClick={handleSkip}
-                  className="flex-1 py-3 px-4 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-300 rounded-xl font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shadow-md"
+                  className="flex-1 py-3 px-4 bg-gray-700 text-gray-300 rounded-xl font-semibold hover:bg-gray-600 transition-colors shadow-md"
                 >
                   Saltar
                 </button>

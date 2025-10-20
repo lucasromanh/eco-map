@@ -1,6 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { MapView } from './components/MapView';
-import { useTheme } from './hooks/useTheme';
 import { Header } from './components/Header';
 import { AddReportModal } from './components/AddReportModal';
 import { ReportList } from './components/ReportList';
@@ -26,15 +25,14 @@ const WeatherForecast = lazy(() => import('./components/WeatherForecast').then(m
 // Componente de loading para Suspense
 const LoadingFallback = () => (
   <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-center justify-center">
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-2xl">
+    <div className="bg-gray-900 rounded-xl p-6 shadow-2xl border border-gray-700">
       <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mx-auto mb-3"></div>
-      <p className="text-gray-700 dark:text-gray-300 text-sm">Cargando...</p>
+      <p className="text-gray-200 text-sm">Cargando...</p>
     </div>
   </div>
 );
 
 function App() {
-  const { isDark, toggleTheme } = useTheme();
   const [reports, setReports] = useState<Report[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isListOpen, setIsListOpen] = useState(false);
@@ -385,9 +383,7 @@ function App() {
   };
 
   return (
-    <div
-      className={`flex flex-col h-screen bg-gray-50 dark:bg-gray-900 ${isDark ? 'dark' : ''}`}
-    >
+    <div className="flex flex-col h-screen bg-gray-50">
       {/* Modal de login/registro */}
       <AuthModal
         isOpen={showAuth}
@@ -405,8 +401,6 @@ function App() {
         effectsEnabled={effectsEnabled}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
-        isDark={isDark}
-        toggleTheme={toggleTheme}
         reportCount={reports.length}
         onInstall={handleInstallClick}
         showInstallButton={!!deferredPrompt}
@@ -420,7 +414,6 @@ function App() {
         selectedReport={selectedReport}
         showWeatherPanel={showWeatherPanel}
         effectsEnabled={effectsEnabled}
-        isDark={isDark}
       />
 
       {/* Botón flotante de Street View - IZQUIERDA */}

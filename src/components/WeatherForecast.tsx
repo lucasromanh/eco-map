@@ -113,7 +113,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-end justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white dark:bg-gray-800 w-full max-w-2xl rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col animate-slide-up">
+      <div className="bg-gray-900 w-full max-w-2xl rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col animate-slide-up">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-t-3xl">
           <div className="flex items-center gap-3">
@@ -139,7 +139,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
           {loading && (
             <div className="flex flex-col items-center justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent"></div>
-              <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando pronóstico...</p>
+              <p className="mt-4 text-gray-400">Cargando pronóstico...</p>
             </div>
           )}
 
@@ -188,7 +188,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                       <h4 className="text-lg font-bold text-gray-900 dark:text-white">
                         {selectedDay === 0 ? 'Hoy' : selectedDay === 1 ? 'Mañana' : formatDate(selectedForecast.date)}
                       </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedForecast.location}</p>
+                      <p className="text-sm text-gray-400">{selectedForecast.location}</p>
                     </div>
                     <div className="text-6xl">{getWeatherEmoji(selectedForecast.precipitation)}</div>
                   </div>
@@ -197,7 +197,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                     <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-2xl">🌧️</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Precipitación</span>
+                        <span className="text-sm text-gray-400">Precipitación</span>
                       </div>
                       <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                         {selectedForecast.precipitation.toFixed(1)} mm
@@ -207,7 +207,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                     <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-2xl">🌡️</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Temperatura</span>
+                        <span className="text-sm text-gray-400">Temperatura</span>
                       </div>
                       <p className="text-2xl font-bold text-orange-600 dark:text-orange-400">
                         {selectedForecast.temperature.toFixed(1)}°C
@@ -217,7 +217,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                     <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-2xl">💧</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Humedad</span>
+                        <span className="text-sm text-gray-400">Humedad</span>
                       </div>
                       <p className="text-2xl font-bold text-cyan-600 dark:text-cyan-400">
                         {selectedForecast.humidity.toFixed(0)}%
@@ -227,16 +227,16 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
                     <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-2xl">💨</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Viento</span>
+                        <span className="text-sm text-gray-400">Viento</span>
                       </div>
-                      <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                      <p className="text-2xl font-bold text-gray-400">
                         {selectedForecast.windSpeed.toFixed(1)} km/h
                       </p>
                     </div>
                   </div>
 
                   <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow">
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Condiciones esperadas:</p>
+                    <p className="text-sm text-gray-400 mb-1">Condiciones esperadas:</p>
                     <p className="text-lg font-semibold text-gray-900 dark:text-white">
                       {selectedForecast.description}
                     </p>
@@ -248,7 +248,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
               <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 rounded">
                 <div className="flex items-start gap-2">
                   <span className="text-xl">ℹ️</span>
-                  <div className="text-sm text-gray-700 dark:text-gray-300">
+                  <div className="text-sm text-gray-300">
                     <p className="font-semibold mb-1">Información del pronóstico</p>
                     <p className="text-xs">
                       Los datos se actualizan cada 6 horas. Para pronósticos oficiales, consultar el{' '}

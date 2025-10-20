@@ -60,15 +60,15 @@ export const ReportList = ({
       />
 
       {/* Panel lateral */}
-      <div className="fixed inset-y-0 right-0 max-w-md w-full bg-white dark:bg-gray-800 shadow-2xl overflow-y-auto animate-slide-up">
+      <div className="fixed inset-y-0 right-0 max-w-md w-full bg-gray-900 shadow-2xl overflow-y-auto animate-slide-up">
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 z-10">
+        <div className="sticky top-0 bg-gray-900 border-b border-gray-700 p-4 z-10">
           <div className="flex justify-between items-center gap-2">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              <h2 className="text-2xl font-bold text-gray-100">
                 Reportes
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-400">
                 {reports.length} {reports.length === 1 ? 'reporte' : 'reportes'}
               </p>
             </div>
@@ -121,7 +121,7 @@ export const ReportList = ({
           {sortedReports.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">🌍</div>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-gray-400">
                 No hay reportes aún
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
@@ -174,12 +174,12 @@ export const ReportList = ({
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-1">
                         <span className="text-xl">{categoryInfo?.icon}</span>
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                        <h3 className="font-semibold text-gray-100">
                           {report.title}
                         </h3>
                       </div>
                       
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <p className="text-sm text-gray-400 mb-2">
                         {truncateText(report.description, 100)}
                       </p>
 

@@ -135,31 +135,31 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[3500] bg-white dark:bg-gray-800 overflow-y-auto">
+    <div className="fixed inset-0 z-[3500] bg-gray-900 overflow-y-auto">
       {/* Header fijo */}
-      <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 z-10">
+      <div className="sticky top-0 bg-gray-900 border-b border-gray-700 px-6 py-4 z-10">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Panel de administración</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Gestión y moderación de contenido</p>
+            <h2 className="text-3xl font-bold text-gray-100">Panel de administración</h2>
+            <p className="text-sm text-gray-400 mt-1">Gestión y moderación de contenido</p>
           </div>
-          <button onClick={onClose} className="px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">← Volver</button>
+          <button onClick={onClose} className="px-3 py-1.5 text-sm bg-gray-200 dark:bg-gray-700 text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-lg transition-colors">← Volver</button>
         </div>
       </div>
 
       {/* Contenido principal */}
       <div className="p-6">
           {!logged ? (
-            <div className="max-w-md mx-auto mt-12 bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+            <div className="max-w-md mx-auto mt-12 bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-700">
               <div className="mb-4 text-center">
                 <div className="text-4xl mb-2">🛡️</div>
-                <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-1">Acceso restringido</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Solo para administradores</div>
+                <div className="text-lg font-semibold text-gray-100 mb-1">Acceso restringido</div>
+                <div className="text-sm text-gray-400">Solo para administradores</div>
               </div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Usuario</label>
-              <input className="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Usuario" />
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
-              <input type="password" className="w-full mb-4 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" />
+              <label className="block text-sm font-medium text-gray-300 mb-1">Usuario</label>
+              <input className="w-full mb-3 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100" value={username} onChange={e=>setUsername(e.target.value)} placeholder="Usuario" />
+              <label className="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
+              <input type="password" className="w-full mb-4 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" />
               <button
                 onClick={onLogin}
                 disabled={loading}
@@ -170,7 +170,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
             </div>
           ) : (
             <div>
-              <div className="mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="mb-4 pb-3 border-b border-gray-700">
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   Sesión: <span className="font-semibold text-gray-700 dark:text-gray-200">{logged?.nombre || logged?.usuario}</span> ({logged?.rol})
                 </div>
@@ -182,7 +182,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                     className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
                       tab==='reports'
                         ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg scale-105' 
-                        : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
+                        : 'bg-transparent text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
                     }`}
                   >
                     📋 Reportes
@@ -192,7 +192,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                     className={`px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200 ${
                       tab==='users'
                         ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg scale-105' 
-                        : 'bg-transparent text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
+                        : 'bg-transparent text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800'
                     }`}
                   >
                     👥 Usuarios
@@ -215,14 +215,14 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
 
               {tab==='reports' && (
                 <>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-100 mb-2">
                     Reportes pendientes ({pendingReports.length})
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-4">
                     {pendingReports.map(r => (
-                      <div key={`report-${r.id}`} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
+                      <div key={`report-${r.id}`} className="border border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start justify-between mb-2">
-                          <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-1 flex-1">{r.titulo || 'Reporte'}</div>
+                          <div className="font-semibold text-sm text-gray-100 line-clamp-1 flex-1">{r.titulo || 'Reporte'}</div>
                           <button onClick={()=>approveReport(r.id)} className="ml-2 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 flex-shrink-0">Aprobar</button>
                           <button onClick={()=>deleteReport(r.id)} className="ml-2 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 flex-shrink-0">Eliminar</button>
                         </div>
@@ -277,7 +277,7 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                             }}
                           />
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2">{r.descripcion}</div>
+                        <div className="text-xs text-gray-400 line-clamp-2 mb-2">{r.descripcion}</div>
                         <div className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <span>👤</span>
@@ -302,15 +302,15 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
 
               {tab==='users' && (
                 <div className="mt-4">
-                  <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Usuarios registrados en el sistema ({allUsers.length})</div>
+                  <div className="text-sm text-gray-400 mb-3">Usuarios registrados en el sistema ({allUsers.length})</div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {allUsers.map(u => (
-                      <div key={`user-${u.id}`} className="border border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
+                      <div key={`user-${u.id}`} className="border border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start gap-3 mb-3">
                           <img src={u.foto_perfil && u.foto_perfil !== 'null' ? u.foto_perfil : 'https://via.placeholder.com/48?text=U'} className="w-12 h-12 rounded-full object-cover flex-shrink-0 bg-gray-200 dark:bg-gray-700" />
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-sm text-gray-900 dark:text-gray-100 truncate">{u.nombre} {u.apellido}</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 truncate">{u.email}</div>
+                            <div className="font-semibold text-sm text-gray-100 truncate">{u.nombre} {u.apellido}</div>
+                            <div className="text-xs text-gray-400 truncate">{u.email}</div>
                             <div className="text-xs text-gray-500 dark:text-gray-500">{u.telefono || 'sin teléfono'}</div>
                             <div className="text-xs text-gray-500 dark:text-gray-500">{u.direccion || ''}</div>
                             <div className="text-xs text-gray-500 dark:text-gray-500">Edad: {u.edad || '-'}</div>

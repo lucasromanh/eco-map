@@ -67,24 +67,24 @@ export const AuthModal = ({ isOpen, onClose, onLogin }: Props) => {
 
   return (
     <div className="fixed inset-0 z-[4000] flex items-center justify-center bg-black/40">
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-6 w-[90vw] max-w-sm relative">
+      <div className="bg-gray-900 rounded-xl shadow-2xl p-6 w-[90vw] max-w-sm relative">
         <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300" onClick={onClose} title="Cerrar">✖</button>
         <h2 className="text-lg font-bold mb-2 text-blue-700 dark:text-blue-300">{isRegister ? 'Crear cuenta' : 'Iniciar sesión'}</h2>
         {error && <div className="mb-2 text-red-600 text-sm">{error}</div>}
         <form onSubmit={isRegister ? handleRegister : handleLogin} className="space-y-3">
           {isRegister && (
             <>
-              <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required />
-              <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required />
-              <input name="telefono" placeholder="Teléfono" value={form.telefono} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" />
-              <input name="direccion" placeholder="Dirección" value={form.direccion} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" />
-              <input name="edad" placeholder="Edad" value={form.edad} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" type="number" min={0} />
+              <input name="nombre" placeholder="Nombre" value={form.nombre} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required />
+              <input name="apellido" placeholder="Apellido" value={form.apellido} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required />
+              <input name="telefono" placeholder="Teléfono" value={form.telefono} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+              <input name="direccion" placeholder="Dirección" value={form.direccion} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+              <input name="edad" placeholder="Edad" value={form.edad} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" type="number" min={0} />
             </>
           )}
-          <input name="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required type="email" />
-          <input name="password" placeholder="Contraseña" value={form.password} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required type="password" />
+          <input name="email" placeholder="Email" value={form.email} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required type="email" />
+          <input name="password" placeholder="Contraseña" value={form.password} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required type="password" />
           {isRegister && (
-            <input name="password2" placeholder="Repetir contraseña" value={form.password2} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required type="password" />
+            <input name="password2" placeholder="Repetir contraseña" value={form.password2} onChange={handleChange} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-900 text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500" required type="password" />
           )}
           <button type="submit" className="w-full py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-bold border-2 border-primary-700 dark:border-primary-400 disabled:opacity-60" disabled={loading}>{loading ? 'Procesando...' : (isRegister ? 'Registrarme' : 'Entrar')}</button>
         </form>
