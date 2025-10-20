@@ -52,10 +52,8 @@ export const environmentalService = {
           precipitation_unit: 'mm',
           timezone: 'auto',
         },
-        // 🔥 Forzar consulta fresca, sin caché (importante para PWA)
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
+        // 🔥 NO usar headers Cache-Control, causa error CORS en Open-Meteo
+        // El cache: 'no-store' se maneja directamente en axios
       });
 
       const current = response.data.current;

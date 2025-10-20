@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { fetchCombinedWeather, getLocationWithRetry } from '../services/weatherService';
 
 interface WeatherForecastProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [dataProvider, setDataProvider] = useState<string>('Open-Meteo'); // ✨ Almacenar proveedor de datos
 
   useEffect(() => {
     if (isOpen) {
@@ -44,18 +46,8 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
     setError(null);
     
     try {
-      // 📍 Obtener ubicación GPS ACTUAL del usuario (coordenadas completas)
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        if (!navigator.geolocation) {
-          reject(new Error('Geolocalización no disponible'));
-          return;
-        }
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true, // GPS preciso
-          timeout: 10000,
-          maximumAge: 0, // No usar caché
-        });
-      });
+      // 📍 Obtener ubicación GPS ACTUAL del usuario con reintentos automáticos
+      const position = await getLocationWithRetry(2); // 2 reintentos
 
       // ⚠️ IMPORTANTE: Usar coordenadas COMPLETAS del GPS (5-6 decimales)
       // NO redondear, puede desplazar hasta 10km la ubicación
@@ -64,22 +56,23 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
       
       console.log(`🌡️ Consultando pronóstico para: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
       
+      // 🌡️ Usar servicio combinado SMN + Open-Meteo para datos actuales
+      const currentWeatherData = await fetchCombinedWeather(latitude, longitude);
+      
+      // 📝 Almacenar el proveedor de datos para mostrar en el footer
+      setDataProvider(currentWeatherData.provider);
+      
+      console.log(`✅ Datos actuales obtenidos desde: ${currentWeatherData.provider}`);
+      
       // 🔥 Timestamp único para evitar caché del service worker en PWA
       const timestamp = Date.now();
       
-      // 🌡️ Usar Open-Meteo con current_weather=true + datos actuales extendidos
-      // current: temperatura, sensación térmica, velocidad y dirección del viento
-      // Nota: relative_humidity_2m_mean en lugar de _max para valor más representativo
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m&current_weather=true&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,wind_speed_10m_max&timezone=auto&forecast_days=7&_=${timestamp}`,
-        {
-          // 🔥 Forzar consulta fresca, sin caché del service worker
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache',
-          },
-        }
-      );
+      // 🌡️ Obtener pronóstico extendido de 7 días desde Open-Meteo
+      // Modelos: meteofrance (Sudamérica 0.1°), icon, gem
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,wind_speed_10m,wind_direction_10m&current_weather=true&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,wind_speed_10m_max&models=meteofrance,icon,gem&timezone=auto&forecast_days=7&_=${timestamp}`;
+
+      // ⚠️ NO usar headers Cache-Control, causa error CORS en Open-Meteo
+      const response = await fetch(url, { cache: 'no-store' });
       
       if (!response.ok) {
         throw new Error('Error al obtener pronóstico');
@@ -90,13 +83,12 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
       // 📍 Obtener nombre de ubicación desde timezone (ej: "America/Argentina/Salta" → "Argentina Salta")
       const locationName = data.timezone ? data.timezone.split('/').slice(1).join(' ').replace(/_/g, ' ') : 'Tu ubicación';
       
-      // 🌡️ Datos actuales del clima (solo disponibles para hoy, index 0)
-      const currentTemp = data.current_weather?.temperature ?? null;
-      const feelsLike = data.current?.apparent_temperature ?? null; // ✨ Sensación térmica
-      const currentWindSpeed = data.current?.wind_speed_10m ?? null; // m/s
-      const windDirection = data.current?.wind_direction_10m ?? null; // grados (0-360)
+      // 🌡️ Usar datos del servicio combinado para el día actual
+      const currentTemp = currentWeatherData.temperature;
+      const feelsLike = currentWeatherData.feelsLike ?? null; // ✨ Sensación térmica
+      const windDirection = currentWeatherData.windDirection ?? null; // grados (0-360)
       
-      console.log(`🌡️ Temperatura actual: ${currentTemp}°C | Sensación térmica: ${feelsLike}°C | Viento: ${currentWindSpeed ? (currentWindSpeed * 3.6).toFixed(1) : '?'} km/h ${windDirection ? getWindDirection(windDirection) : ''} | Ubicación: ${locationName}`);
+      console.log(`🌡️ Temperatura actual: ${currentTemp}°C | Sensación térmica: ${feelsLike}°C | Viento: ${currentWeatherData.windSpeed.toFixed(1)} km/h ${windDirection ? getWindDirection(windDirection) : ''} | Ubicación: ${locationName}`);
       
       // Transformar datos
       const forecast: ForecastData[] = data.daily.time.map((date: string, index: number) => {
@@ -136,11 +128,9 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
     } catch (err) {
       console.error('❌ Error al obtener pronóstico:', err);
       setError(
-        err instanceof GeolocationPositionError
-          ? 'No se pudo obtener tu ubicación. Verifica los permisos de ubicación.'
-          : err instanceof Error
-            ? err.message
-            : 'Error desconocido al obtener el pronóstico'
+        err instanceof Error
+          ? err.message
+          : 'Error desconocido al obtener el pronóstico'
       );
       console.error('Error al cargar pronóstico:', err);
     } finally {
@@ -351,12 +341,27 @@ export const WeatherForecast = ({ isOpen, onClose }: WeatherForecastProps) => {
               </div>
             </>
           )}
+
+          {/* Nota informativa sobre fuentes de datos */}
+          <div className="mt-4 bg-blue-900/20 border-l-4 border-blue-500 p-3 rounded">
+            <div className="flex items-start gap-2">
+              <span className="text-lg">🌡️</span>
+              <div className="text-xs text-gray-300">
+                <p className="font-semibold mb-1">Sobre los datos meteorológicos</p>
+                <p>
+                  📡 Prioriza datos oficiales de SMN Argentina cuando están disponibles. 
+                  Utiliza modelos de alta resolución (meteofrance 0.1°, icon, gem) como respaldo. 
+                  Los valores pueden diferir levemente de otras aplicaciones según el modelo usado.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
         <div className="px-6 py-4 bg-gray-100 dark:bg-gray-900 rounded-b-3xl border-t dark:border-gray-700">
           <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Fuente: Open-Meteo API · Actualizado: {new Date().toLocaleString('es-AR')}
+            Fuente: {dataProvider} · Actualizado: {new Date().toLocaleString('es-AR')}
           </p>
         </div>
       </div>
