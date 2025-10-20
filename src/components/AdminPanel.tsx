@@ -308,8 +308,8 @@ export const AdminPanel = ({ isOpen, onClose }: Props) => {
                       <div key={`user-${u.id}`} className="border border-gray-700 rounded-lg p-3 bg-gray-50 dark:bg-gray-900">
                         <div className="flex items-start gap-3 mb-3">
                           <img 
-                            src={u.foto_perfil && u.foto_perfil !== 'null' ? u.foto_perfil : '/images/default_user.svg'} 
-                            onError={(e) => (e.currentTarget.src = '/images/default_user.svg')}
+                            src={u.foto_perfil && u.foto_perfil !== 'null' ? u.foto_perfil : '/images/default_user.png'} 
+                            onError={(e) => (e.currentTarget.src = '/images/default_user.png')}
                             className="w-12 h-12 rounded-full object-cover flex-shrink-0 bg-gray-200 dark:bg-gray-700" 
                             alt="Usuario"
                           />

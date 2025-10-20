@@ -158,13 +158,13 @@ export const Header = ({ onAddReport, onToggleList, onShowHelp, onShowTutorial, 
                   {userProfile.avatarUrl ? (
                     <img 
                       src={userProfile.avatarUrl} 
-                      onError={(e) => (e.currentTarget.src = '/images/default_user.svg')}
+                      onError={(e) => (e.currentTarget.src = '/images/default_user.png')}
                       alt={`${userProfile.firstName} ${userProfile.lastName}`}
                       className="w-10 h-10 rounded-full object-cover border-2 border-primary-400"
                     />
                   ) : (
                     <img 
-                      src="/images/default_user.svg"
+                      src="/images/default_user.png"
                       alt="Usuario"
                       className="w-10 h-10 rounded-full object-cover border-2 border-primary-400"
                     />
